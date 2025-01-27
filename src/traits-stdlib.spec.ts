@@ -8,7 +8,7 @@ import * as chai from "chai"
 import sinon     from "sinon"
 import sinonChai from "sinon-chai"
 
-import { trait, derive } from "@rse/traits"
+import { derive } from "@rse/traits"
 import { Subscribable, Bindable, bindable, Hookable }  from "./traits-stdlib"
 
 const expect = chai.expect

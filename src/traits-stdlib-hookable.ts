@@ -24,10 +24,10 @@ enum HookResult {
 
 /*  interface of hook context  */
 interface HookContext {
+    name:     string
     CONTINUE: HookResult.CONTINUE
     FINISH:   HookResult.FINISH
     REPEAT:   HookResult.REPEAT
-    name:     string
 }
 
 /*  types of hook callbacks  */
@@ -82,29 +82,42 @@ export const Hookable = <T extends HookMap>() => trait((base) => class Hookable 
         N extends HookName<T>,
         D extends HookData<T, N>>
         (name: N, data?: D): Promise<void | D> {
-        if (this.#hooks[name] === undefined)
-            return data
-        const h = {
-            CONTINUE: HookResult.CONTINUE,
-            FINISH:   HookResult.FINISH,
-            REPEAT:   HookResult.REPEAT,
-            name
-        } satisfies HookContext
-        let repeat = true
-        while (repeat) {
-            repeat = false
-            loop: for (const group of [ "early", "main", "late" ] as Array<HookPosition>) {
-                for (const info of this.#hooks[name][group]) {
-                    const result = await info.cb(h, data)
-                    if (result === HookResult.REPEAT) {
-                        repeat = true
-                        break loop
+        if (this.#hooks[name] !== undefined) {
+            /*  provide hook context  */
+            const h = {
+                name,
+                CONTINUE: HookResult.CONTINUE,
+                FINISH:   HookResult.FINISH,
+                REPEAT:   HookResult.REPEAT
+            } satisfies HookContext
+
+            /*  iterate as long as we should repeat  */
+            let repeat = true
+            while (repeat) {
+                /*  assume we should now no longer repeat  */
+                repeat = false
+
+                /*  iterate over all hook slots  */
+                loop: for (const group of [ "early", "main", "late" ] as Array<HookPosition>) {
+                    /*  iterate over all registered hooks  */
+                    for (const info of this.#hooks[name][group]) {
+                        /*  call registered hook  */
+                        const result = await info.cb(h, data)
+                        if (result === HookResult.REPEAT) {
+                            /*  repeat the operation  */
+                            repeat = true
+                            break loop
+                        }
+                        else if (result === HookResult.FINISH) {
+                            /*  stop the operation  */
+                            break loop
+                        }
                     }
-                    else if (result === HookResult.FINISH)
-                        break loop
                 }
             }
         }
+
+        /*  provide results  */
         if (data !== undefined)
             return data
     }
@@ -125,10 +138,10 @@ export const Hookable = <T extends HookMap>() => trait((base) => class Hookable 
         F extends (HookData<T, N> extends undefined ?
             HookCallbackVoid : HookCallback<HookData<T, N>>)>
         (name: N, optionsOrCb: LatchOptions | F, cbOrUndefined?: F): Unlatcher {
-        if (typeof optionsOrCb === "object")
-            return this.$latch(name, optionsOrCb, cbOrUndefined!)
+        if (cbOrUndefined)
+            return this.$latch(name, optionsOrCb as LatchOptions, cbOrUndefined)
         else
-            return this.$latch(name, optionsOrCb)
+            return this.$latch(name, optionsOrCb as F)
     }
 
     /*  latch into a hook  */
