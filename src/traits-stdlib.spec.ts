@@ -86,7 +86,7 @@ describe("@rse/traits-stdlib", () => {
             }
         }
         const app = new App()
-        app.$at("foo", async (h, data) => {
+        app.$latch("foo", { limit: 2 }, async (h, data) => {
             console.log("foo", h, data)
             return h.CONTINUE
         })
@@ -101,6 +101,8 @@ describe("@rse/traits-stdlib", () => {
             return h.CONTINUE
         })
         app.$hook("foo", { foo2: "aha" })
+        app.$hook("foo", { foo2: "soso" })
+        app.$hook("foo", { foo2: "hmm" })
         app.$hook("bar", { bar2: 42 })
     })
 })

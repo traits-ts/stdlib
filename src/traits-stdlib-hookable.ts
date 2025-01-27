@@ -89,6 +89,9 @@ export const Hookable = <T extends HookMap>() => trait((base) => class Hookable 
                 REPEAT:   HookResult.REPEAT
             } satisfies HookContext
 
+            /*  remember cleanups  */
+            const cleanups: Array<() => void> = []
+
             /*  iterate as long as we should repeat  */
             let repeat = true
             while (repeat) {
@@ -98,8 +101,17 @@ export const Hookable = <T extends HookMap>() => trait((base) => class Hookable 
                 /*  iterate over all hook slots  */
                 loop: for (const group of [ "early", "main", "late" ] as Array<HookPosition>) {
                     /*  iterate over all registered hooks  */
-                    for (const info of callbacks[group]) {
+                    for (let i = 0; i < callbacks[group].length; i++) {
+                        const info = callbacks[group][i]
                         /*  call registered hook  */
+                        if (info.limit === 0) {
+                            cleanups.push(() => {
+                                delete callbacks[group][i]
+                            })
+                            continue
+                        }
+                        else if (info.limit > 0)
+                            info.limit--
                         const result = await info.cb(h, data)
                         if (result === HookResult.REPEAT) {
                             /*  repeat the operation  */
@@ -113,6 +125,9 @@ export const Hookable = <T extends HookMap>() => trait((base) => class Hookable 
                     }
                 }
             }
+
+            /*  execute cleanup  */
+            cleanups.forEach((cb) => { cb() })
         }
 
         /*  provide results  */
