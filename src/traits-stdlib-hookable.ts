@@ -46,9 +46,6 @@ interface HookCallbacks {
     main:  Array<HookCallbackInfo>
     late:  Array<HookCallbackInfo>
 }
-interface HookStore {
-    [ name: string | number | symbol ]: HookCallbacks
-}
 
 /*  interface of type returned by "latch" for unlatching  */
 interface Unlatcher {
@@ -63,7 +60,7 @@ type LatchOptions = {
 
 export const Hookable = <T extends HookMap>() => trait((base) => class Hookable extends base {
     /*  internal state  */
-    #hooks: HookStore = {}
+    #hooks = new Map<string, HookCallbacks>()
 
     /*  trait construction  */
     constructor (params: { [key: string]: unknown } | undefined) {
@@ -82,7 +79,8 @@ export const Hookable = <T extends HookMap>() => trait((base) => class Hookable 
         N extends HookName<T>,
         D extends HookData<T, N>>
         (name: N, data?: D): Promise<void | D> {
-        if (this.#hooks[name] !== undefined) {
+        const callbacks = this.#hooks.get(name)
+        if (callbacks !== undefined) {
             /*  provide hook context  */
             const h = {
                 name,
@@ -100,7 +98,7 @@ export const Hookable = <T extends HookMap>() => trait((base) => class Hookable 
                 /*  iterate over all hook slots  */
                 loop: for (const group of [ "early", "main", "late" ] as Array<HookPosition>) {
                     /*  iterate over all registered hooks  */
-                    for (const info of this.#hooks[name][group]) {
+                    for (const info of callbacks[group]) {
                         /*  call registered hook  */
                         const result = await info.cb(h, data)
                         if (result === HookResult.REPEAT) {
@@ -165,16 +163,16 @@ export const Hookable = <T extends HookMap>() => trait((base) => class Hookable 
         cb ??= optionsOrCb as F
 
         /*  ensure that the hook store has slots  */
-        if (this.#hooks[name] === undefined) {
-            this.#hooks[name] = {
+        if (!this.#hooks.has(name)) {
+            this.#hooks.set(name, {
                 "early": [] as Array<HookCallbackInfo>,
                 "main":  [] as Array<HookCallbackInfo>,
                 "late":  [] as Array<HookCallbackInfo>
-            } satisfies HookCallbacks
+            } satisfies HookCallbacks)
         }
 
         /*  register the callback  */
-        this.#hooks[name][options.pos ?? "main"].push({
+        this.#hooks.get(name)![options.pos ?? "main"].push({
             cb, limit: options.limit ?? -1
         })
 
@@ -193,20 +191,23 @@ export const Hookable = <T extends HookMap>() => trait((base) => class Hookable 
         F extends (HookData<T, N> extends undefined ?
             HookCallbackVoid : HookCallback<HookData<T, N>>)>
         (name: N, cb: F): void {
-        /*  iterate over all groups  */
-        for (const group of HookPositionNames) {
-            /*  iterate over all registered callbacks  */
-            for (let i = 0; i < this.#hooks[name][group].length; i++) {
-                const info = this.#hooks[name][group][i]
-                if (info.cb === cb) {
-                    /*  delete registered callback  */
-                    /* eslint @typescript-eslint/no-dynamic-delete: off */
-                    delete this.#hooks[name][group][i]
-                    if (this.#hooks[name]["early"].length === 0 &&
-                        this.#hooks[name]["main"].length  === 0 &&
-                        this.#hooks[name]["late"].length  === 0)
-                        delete this.#hooks[name]
-                    return
+        const callbacks = this.#hooks.get(name)
+        if (callbacks !== undefined) {
+            /*  iterate over all groups  */
+            for (const group of HookPositionNames) {
+                /*  iterate over all registered callbacks  */
+                for (let i = 0; i < callbacks[group].length; i++) {
+                    const info = callbacks[group][i]
+                    if (info.cb === cb) {
+                        /*  delete registered callback  */
+                        /* eslint @typescript-eslint/no-dynamic-delete: off */
+                        delete callbacks[group][i]
+                        if (   callbacks["early"].length === 0
+                            && callbacks["main"].length  === 0
+                            && callbacks["late"].length  === 0)
+                            this.#hooks.delete(name)
+                        return
+                    }
                 }
             }
         }
