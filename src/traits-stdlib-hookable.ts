@@ -42,9 +42,9 @@ type HookCallbackInfo<T extends any = any> = {
     limit: number
 }
 interface HookCallbacks {
-    early: Array<HookCallbackInfo>
-    main:  Array<HookCallbackInfo>
-    late:  Array<HookCallbackInfo>
+    "early": Array<HookCallbackInfo>
+    "main":  Array<HookCallbackInfo>
+    "late":  Array<HookCallbackInfo>
 }
 
 /*  interface of type returned by "latch" for unlatching  */
