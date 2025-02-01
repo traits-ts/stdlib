@@ -12,6 +12,7 @@ import { derive } from "@rse/traits"
 
 import {
     Identifiable,
+    Configurable,
     Subscribable,
     Bindable, bindable,
     Hookable
@@ -21,7 +22,10 @@ const expect = chai.expect
 chai.config.includeStack = true
 chai.use(sinonChai)
 
+type DeepPartial<T> = T extends object ? { [ P in keyof T ]?: DeepPartial<T[P]> } : T
+
 describe("@rse/traits-stdlib", () => {
+
     it("Identifiable", async () => {
         expect(Identifiable).to.be.a("object")
         class App extends derive(Identifiable) {}
@@ -30,6 +34,33 @@ describe("@rse/traits-stdlib", () => {
         expect(app1.$id).to.match(/^.............-....-....-............$/)
         expect(app2.$id).to.match(/^.............-....-....-............$/)
         expect(app1.$id).to.be.not.equal(app2.$id)
+    })
+
+    it("Configurable", async () => {
+        expect(Configurable).to.be.a("function")
+        type Config = {
+            foo: number,
+            bar: string
+            baz: {
+                quux: boolean
+            }
+        }
+        class App extends derive(Configurable<Config>) {
+            $configuration = {
+                foo: 42,
+                bar: "bar",
+                baz: {
+                    quux: true
+                }
+            } satisfies Config
+            sample () {
+                return this.$configuration.baz.quux
+            }
+        }
+        const app = new App()
+        expect(app.$configuration).to.be.deep.equal({ foo: 42, bar: "bar", baz: { quux: true } })
+        app.$configure({ foo: 7, baz: { quux: false } })
+        expect(app.$configuration).to.be.deep.equal({ foo: 7, bar: "bar", baz: { quux: false } })
     })
 
     it("Subscribable", async () => {

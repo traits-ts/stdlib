@@ -7,25 +7,24 @@
 import { trait }    from "@rse/traits"
 import moment       from "moment"
 
-type TraceLogLevels    = string[]
+type TraceLogLevels    = string
 type TraceLogLevelsDef = "FATAL" | "ERROR" | "WARNING" | "INFO" | "DEBUG"
 
 /*  the API trait "Traceable<T>"  */
 export const Traceable = <T extends TraceLogLevels = TraceLogLevelsDef>() =>
     trait((base) => class Traceable extends base {
-    /*  internal state  */
-    #emitter = new EventEmitter()
-
     /*  the public configuration  */
-    $logLevels = [ "FATAL", "ERROR", "WARNING", "INFO", "DEBUG" ]
-    $logLevel  = "INFO"
+    $logLevels = [ "FATAL", "ERROR", "WARNING", "INFO", "DEBUG" ] as T[]
+    $logLevel  = "INFO" as T
     $logOutput = (line: string) => { console.log(line) }
 
     /*  (re)-configure state  */
-    $log (logLevel: T, message: string, data?: Record<string, any>) {
-         if (logLevel <= this.$logLevel) {
+    $log (logLevel: T, msg: string, data?: Record<string, any>) {
+        const idxLevel1 = this.$logLevels.indexOf(logLevel)
+        const idxLevel2 = this.$logLevels.indexOf(this.$logLevel)
+        if (idxLevel1 <= idxLevel2) {
             const timestamp = moment().format("YYYY-MM-DD hh:mm:ss.SSS")
-            let line = `[${timestamp}]: [${levels[level].name}] ${msg}`
+            let line = `[${timestamp}]: [${logLevel}] ${msg}`
             if (data)
                 line += " (" + Object.keys(data).map((key) =>
                     `${key}: ${JSON.stringify(data[key])}`).join(", ") + ")"

@@ -7,20 +7,65 @@
 import { trait } from "@rse/traits"
 
 type ConfigurationKey = symbol | string
-type ConfigurationVal = symbol | string | number | boolean
-type Configuration    = { [ key: ConfigurationKey ]: ConfigurationVal | Configuration }
+type ConfigurationVal = any
+type Configuration    = {
+    [ key: ConfigurationKey ]: ConfigurationVal | Configuration
+}
+
+type DeepPartial<T> =
+    T extends object ? {
+        [ P in keyof T ]?: DeepPartial<T[P]>
+    } : T
+
+const isObject = (item: any): item is object =>
+    item && typeof item === "object" && !Array.isArray(item)
+
+const mergeDeep = <T>(target: T, source: DeepPartial<T>): T => {
+    if (Array.isArray(source) && Array.isArray(target)) {
+        const maxLength = Math.max(target.length, source.length)
+        for (let i = 0; i < maxLength; i++) {
+            if (i in source) {
+                if (i in target)
+                    target[i] = mergeDeep(target[i], source[i] as any)
+                else
+                    target[i] = source[i] as any
+            }
+        }
+        return target
+    }
+    else if (isObject(source) && isObject(target)) {
+        const keys = [
+            ...Object.keys(source),
+            ...Object.getOwnPropertySymbols(source) as (string | symbol)[]
+        ]
+        for (const key of keys) {
+            const sourceValue = (source as any)[key]
+            const targetValue = (target as any)[key]
+            if (Array.isArray(sourceValue) && Array.isArray(targetValue))
+                (target as any)[key] = mergeDeep(targetValue, sourceValue)
+            else if (isObject(sourceValue) && isObject(targetValue))
+                (target as any)[key] = mergeDeep(targetValue, sourceValue)
+            else
+                (target as any)[key] = sourceValue
+        }
+        return target
+    }
+    else
+        return source as T
+}
 
 /*  the API trait "Configurable<T>"  */
 export const Configurable = <T extends Configuration>() =>
     trait((base) => class Configurable extends base {
-    /*  internal state  */
 
-    constructor () {
-        super()
-    }
+    /*  configuration store  */
+    $configuration: undefined | T = undefined
 
     /*  (re)-configure state  */
-    $configure (configuration: Partial<T>) {
+    $configure (configuration: DeepPartial<T>) {
+        if (this.$configuration === undefined)
+            throw new Error("$configuration has to be initialized")
+        mergeDeep(this.$configuration, configuration)
     }
 })
 
