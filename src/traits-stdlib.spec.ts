@@ -9,13 +9,29 @@ import sinon     from "sinon"
 import sinonChai from "sinon-chai"
 
 import { derive } from "@rse/traits"
-import { Subscribable, Bindable, bindable, Hookable }  from "./traits-stdlib"
+
+import {
+    Identifiable,
+    Subscribable,
+    Bindable, bindable,
+    Hookable
+}  from "./traits-stdlib"
 
 const expect = chai.expect
 chai.config.includeStack = true
 chai.use(sinonChai)
 
 describe("@rse/traits-stdlib", () => {
+    it("Identifiable", async () => {
+        expect(Identifiable).to.be.a("object")
+        class App extends derive(Identifiable) {}
+        const app1 = new App()
+        const app2 = new App()
+        expect(app1.$id).to.match(/^.............-....-....-............$/)
+        expect(app2.$id).to.match(/^.............-....-....-............$/)
+        expect(app1.$id).to.be.not.equal(app2.$id)
+    })
+
     it("Subscribable", async () => {
         expect(Subscribable).to.be.a("function")
         interface Events {
