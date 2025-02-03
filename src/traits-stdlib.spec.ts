@@ -15,7 +15,8 @@ import {
     Configurable,
     Subscribable,
     Bindable, bindable,
-    Hookable
+    Hookable,
+    Serializable, serializable
 }  from "./traits-stdlib"
 
 const expect = chai.expect
@@ -151,6 +152,39 @@ describe("@rse/traits-stdlib", () => {
         app.$hook("foo", { foo2: "soso" })
         app.$hook("foo", { foo2: "hmm" })
         app.$hook("bar", { bar2: 42 })
+    })
+
+    it("Serializable", async () => {
+        expect(Serializable).to.be.a("object")
+        interface Serializables {
+            foo:  boolean
+            bar:  number
+            quux: string
+        }
+        /* eslint no-use-before-define: off */
+        @serializable
+        class App extends derive(Serializable) {
+            @serializable foo  = true
+            @serializable bar  = 42
+            @serializable baz  = new Set<App>()
+            @serializable baz2 = new Map<string, App>()
+            @serializable quux = "quux"
+            @serializable sub?: App = undefined
+            constructor (sub?: App)  {
+                console.log("App create")
+                super()
+                if (sub) {
+                    this.sub = sub
+                    this.baz.add(sub)
+                    this.baz2.set("foo", sub)
+                }
+            }
+        }
+        const app1 = new App()
+        const app2 = new App(app1)
+        const x = app2.$serialize()
+        console.log(x)
+        const obj = App.$unserialize(x)
     })
 })
 
