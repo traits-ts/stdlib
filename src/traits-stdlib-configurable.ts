@@ -6,20 +6,24 @@
 
 import { trait } from "@rse/traits"
 
+/*  the type for the API  */
 type ConfigurationKey = symbol | string
 type ConfigurationVal = any
 type Configuration    = {
     [ key: ConfigurationKey ]: ConfigurationVal | Configuration
 }
 
+/*  internal utility type for making everything optional  */
 type DeepPartial<T> =
     T extends object ? {
         [ P in keyof T ]?: DeepPartial<T[P]>
     } : T
 
+/*  internal utility function for checking for a plain object  */
 const isObject = (item: any): item is object =>
     item && typeof item === "object" && !Array.isArray(item)
 
+/*  internal utility function for deep merging  */
 const mergeDeep = <T>(target: T, source: DeepPartial<T>): T => {
     if (Array.isArray(source) && Array.isArray(target)) {
         const maxLength = Math.max(target.length, source.length)
