@@ -54,6 +54,8 @@ export default [
             "no-useless-constructor":                             "off",
             "no-unused-vars":                                     "off",
             "no-dupe-class-members":                              "off",
+            "no-void":                                            "off",
+            "no-redeclare":                                       "off",
 
             "@stylistic/indent":                                  [ "error", 4, { SwitchCase: 1 } ],
             "@stylistic/linebreak-style":                         [ "error", "unix" ],
