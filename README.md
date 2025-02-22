@@ -104,8 +104,8 @@ The reusable generic trait *Bindable* allows you to bind to properties
 of a target class. The properties have to be defined in an interface
 `T` of `Bindable<T>` and defined as `@bindable accessor` on the target
 class. One can then bind to those properties with method `$bind` and
-observe all changes to the property. Apply a *Bindable* for externally
-observing and reacting to property changes.
+observe all changes to the property. Apply a *Bindable* for allowing
+the external observing and reacting to property changes.
 
 ```ts
 import { derive }             from "@rse/traits"
@@ -122,8 +122,8 @@ const sample = new Sample()
 const b1 = sample.$bind("foo", (val, old) => { console.log("foo:", val, old) })
 const b2 = sample.$bind("bar", (val, old) => { console.log("bar:", val, old) })
 
-sample.foo += 1            // -> "foo: 43 42"
-sample.bar = "baz"         // -> "bar: baz bar"
+sample.foo += 1    // -> "foo: 43 42"
+sample.bar = "baz" // -> "bar: baz bar"
 
 b1.unbind()
 b2.unbind()
@@ -136,7 +136,7 @@ The reusable generic trait *Subscribable* allows you to subscribe to
 typed events emitted on a target class. The events have to be defined
 in an interface `T` of `Subscribable<T>`. One can then subscribe to
 those events with method `$subscribe` and emit those events with method
-`$emit`. Apply a *Subscribable* for externally observing and reacting to
+`$emit`. Apply a *Subscribable* for allowing the external observing and reacting to
 logical events.
 
 ```ts
@@ -167,7 +167,7 @@ The reusable generic trait *Hookable* allows you to attach hooks to
 a target class. The hooks have to be defined in an interface `T` of
 `Hookable<T>`. One can then latch into those hooks with method `$latch`
 and call those hooks with method `$hook`. Apply a *Hookable* for
-externally extending functionality.
+allowing the external extension of functionality.
 
 ```ts
 import { derive }   from "@rse/traits"
