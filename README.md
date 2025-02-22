@@ -143,7 +143,7 @@ logical events.
 import { derive }       from "@rse/traits"
 import { Subscribable } from "@rse/traits-stdlib"
 
-interface Events { foo: number, bar: string }
+interface Events { "foo": number, "bar": string }
 
 class Sample extends derive(Subscribable<Events>) {}
 
@@ -178,8 +178,8 @@ import { derive }   from "@rse/traits"
 import { Hookable } from "@rse/traits-stdlib"
 
 interface Hooks {
-    "foo":  { foo2: string },
-    "bar":  { bar2: number },
+    "foo":  { arg: string },
+    "bar":  { arg: number },
     "quux": undefined
 }
 class Sample extends derive(Hookable<Hooks>) {}
@@ -187,25 +187,20 @@ class Sample extends derive(Hookable<Hooks>) {}
 const sample = new Sample()
 const l1 = sample.$latch("foo", { limit: 2 }, async (h, data) => {
     console.log("foo:", data)
-    return h.CONTINUE
+    return Hookable.CONTINUE
 })
 const l2 = sample.$latch("bar", { pos: "late" }, async (h, data) => {
     console.log("bar: start:", data)
     return new Promise((resolve) => {
         console.log("bar: end:", data)
-        resolve(h.FINISH)
+        resolve(Hookable.FINISH)
     })
 })
-const l3 = sample.$latch("quux", async (h) => {
-    console.log("quux")
-    return h.CONTINUE
-})
 
-sample.$hook("foo", { foo2: "foo1" }) // -> "foo: foo1"
-sample.$hook("foo", { foo2: "foo2" }) // -> "foo: foo2"
-sample.$hook("foo", { foo2: "foo3" }) // -> (none)
-sample.$hook("bar", { bar2: 42 })     // -> "bar: start: 42", "bar: end: 42"
-sample.$hook("quux")                   // -> "quux"
+sample.$hook("foo", { arg: "foo1" }) // -> "foo: { arg: foo1 }"
+sample.$hook("foo", { arg: "foo2" }) // -> "foo: { arg: foo2 }"
+sample.$hook("foo", { arg: "foo3" }) // -> (none)
+sample.$hook("bar", { arg: 42 })     // -> "bar: start: { arg: 42 }", "bar: end: { arg: 42 }"
 
 l1.unlatch()
 l2.unlatch()

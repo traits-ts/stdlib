@@ -86,9 +86,9 @@ describe("@rse/traits-stdlib", () => {
             console.log("bar-bind", val, old)
         })
         app.foo = 7
-        console.log("foo=", app.$get("foo"))
+        console.log("foo=", app.foo)
         app.bar = "barrrrr"
-        console.log("bar=", app.$get("bar"))
+        console.log("bar=", app.bar)
         app.raise()
         console.log("foo=", app.foo)
         console.log("bar=", app.bar)
@@ -101,8 +101,8 @@ describe("@rse/traits-stdlib", () => {
     it("Subscribable", async () => {
         expect(Subscribable).to.be.a("function")
         interface Events {
-            foo: number,
-            bar: string
+            "foo": number,
+            "bar": string
         }
         class App extends derive(Subscribable<Events>) {
             constructor () { super({}) }
@@ -128,25 +128,18 @@ describe("@rse/traits-stdlib", () => {
             "bar":  { bar2: number },
             "quux": undefined
         }
-        class App extends derive(Hookable<Hooks>) {
-            constructor () {
-                super({})
-            }
-        }
+        class App extends derive(Hookable<Hooks>) {}
         const app = new App()
-        app.$latch("foo", { limit: 2 }, async (h, data) => {
-            console.log("foo", h, data)
-            return h.CONTINUE
+        app.$latch("foo", { limit: 2 }, async (data) => {
+            console.log("foo", data)
+            return Hookable.CONTINUE
         })
-        app.$latch("bar", { pos: "late" }, async (h, data) => {
+        app.$latch("bar", { pos: "late" }, (data) => {
             console.log("bar start", data)
             return new Promise((resolve) => {
                 console.log("bar end", data)
-                resolve(h.FINISH)
+                resolve(Hookable.FINISH)
             })
-        })
-        app.$latch("quux", async (h) => {
-            return h.CONTINUE
         })
         app.$hook("foo", { foo2: "aha" })
         app.$hook("foo", { foo2: "soso" })

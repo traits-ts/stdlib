@@ -22,19 +22,9 @@ enum HookResult {
     REPEAT
 }
 
-/*  interface of hook context  */
-interface HookContext {
-    name:     string
-    CONTINUE: HookResult.CONTINUE
-    FINISH:   HookResult.FINISH
-    REPEAT:   HookResult.REPEAT
-}
-
 /*  types of hook callbacks  */
-type HookCallback<T extends any = any> =
-    (h: HookContext, data: T) => Promise<HookResult>
-type HookCallbackVoid =
-    (h: HookContext) => Promise<HookResult>
+type HookCallback<T extends any = any> = (data: T) => Promise<HookResult>
+type HookCallbackVoid                  = ()        => Promise<HookResult>
 
 /*  types and interface for internal hook store  */
 type HookCallbackInfo<T extends any = any> = {
@@ -76,14 +66,6 @@ export const Hookable = <T extends HookMap>() => trait((base) => class Hookable 
         (name: N, data?: D): Promise<void | D> {
         const callbacks = this.#hooks.get(name)
         if (callbacks !== undefined) {
-            /*  provide hook context  */
-            const h = {
-                name,
-                CONTINUE: HookResult.CONTINUE,
-                FINISH:   HookResult.FINISH,
-                REPEAT:   HookResult.REPEAT
-            } satisfies HookContext
-
             /*  remember cleanups  */
             const cleanups: Array<() => void> = []
 
@@ -107,7 +89,11 @@ export const Hookable = <T extends HookMap>() => trait((base) => class Hookable 
                         }
                         else if (info.limit > 0)
                             info.limit--
-                        const result = await info.cb(h, data)
+                        const result = await (
+                            data !== undefined ?
+                            (info.cb as HookCallback<T>)(data) :
+                            (info.cb as HookCallbackVoid)()
+                        )
                         if (result === HookResult.REPEAT) {
                             /*  repeat the operation  */
                             repeat = true
@@ -224,3 +210,8 @@ export const Hookable = <T extends HookMap>() => trait((base) => class Hookable 
         throw new Error("no such hook latching found")
     }
 })
+
+Hookable.CONTINUE = HookResult.CONTINUE
+Hookable.FINISH   = HookResult.FINISH
+Hookable.REPEAT   = HookResult.REPEAT
+
