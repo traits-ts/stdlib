@@ -148,8 +148,12 @@ interface Events { foo: number, bar: string }
 class Sample extends derive(Subscribable<Events>) {}
 
 const sample = new Sample()
-const s1 = sample.$subscribe("foo", (val) => { console.log("foo:", val) } }, { limit: 1 })
-const s2 = sample.$subscribe("bar", (val) => { console.log("bar:", val) } })
+const s1 = sample.$subscribe("foo", { limit: 1 }, (val) => {
+    console.log("foo:", val)
+})
+const s2 = sample.$subscribe("bar", (val) => {
+    console.log("bar:", val)
+})
 
 sample.$emit("foo", 42)      // -> "foo: 42"
 sample.$emit("foo", 7)       // -> (none)
@@ -197,10 +201,10 @@ const l3 = sample.$latch("quux", async (h) => {
     return h.CONTINUE
 })
 
-sample.$hook("foo",  { foo2: "foo1" }) // -> "foo: foo1"
-sample.$hook("foo",  { foo2: "foo2" }) // -> "foo: foo2"
-sample.$hook("foo",  { foo2: "foo3" }) // -> (none)
-sample.$hook("bar",  { bar2: 42 })     // -> "bar: start: 42", "bar: end: 42"
+sample.$hook("foo", { foo2: "foo1" }) // -> "foo: foo1"
+sample.$hook("foo", { foo2: "foo2" }) // -> "foo: foo2"
+sample.$hook("foo", { foo2: "foo3" }) // -> (none)
+sample.$hook("bar", { bar2: 42 })     // -> "bar: start: 42", "bar: end: 42"
 sample.$hook("quux")                   // -> "quux"
 
 l1.unlatch()
