@@ -64,29 +64,6 @@ describe("@rse/traits-stdlib", () => {
         expect(app.$configuration).to.be.deep.equal({ foo: 7, bar: "bar", baz: { quux: false } })
     })
 
-    it("Subscribable", async () => {
-        expect(Subscribable).to.be.a("function")
-        interface Events {
-            foo: number,
-            bar: string
-        }
-        class App extends derive(Subscribable<Events>) {
-            constructor () { super({}) }
-            raise () {
-                this.$emit("foo", 42)
-                this.$emit("bar", "quux")
-            }
-        }
-        const app = new App()
-        app.$subscribe("foo", (val) => {
-            expect(val).to.be.equal(42)
-        }, { limit: 1 })
-        app.$subscribe("bar", (val) => {
-            expect(val).to.be.equal("quux")
-        })
-        app.raise()
-    })
-
     it("Bindable", async () => {
         expect(Bindable).to.be.a("function")
         interface State { foo: number, bar: string }
@@ -108,9 +85,9 @@ describe("@rse/traits-stdlib", () => {
         app.$bind("bar", (val, old) => {
             console.log("bar-bind", val, old)
         })
-        app.$set("foo", 7)
+        app.foo = 7
         console.log("foo=", app.$get("foo"))
-        app.$set("bar", "barrrrr")
+        app.bar = "barrrrr"
         console.log("bar=", app.$get("bar"))
         app.raise()
         console.log("foo=", app.foo)
@@ -119,6 +96,29 @@ describe("@rse/traits-stdlib", () => {
         app.bar += "y"
         console.log("foo=", app.foo)
         console.log("bar=", app.bar)
+    })
+
+    it("Subscribable", async () => {
+        expect(Subscribable).to.be.a("function")
+        interface Events {
+            foo: number,
+            bar: string
+        }
+        class App extends derive(Subscribable<Events>) {
+            constructor () { super({}) }
+            raise () {
+                this.$emit("foo", 42)
+                this.$emit("bar", "quux")
+            }
+        }
+        const app = new App()
+        app.$subscribe("foo", (val) => {
+            expect(val).to.be.equal(42)
+        }, { limit: 1 })
+        app.$subscribe("bar", (val) => {
+            expect(val).to.be.equal("quux")
+        })
+        app.raise()
     })
 
     it("Hookable", async () => {
