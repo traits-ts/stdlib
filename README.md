@@ -26,7 +26,9 @@ of reusable, generic, typed traits (aka mixins), based on the
 [@rse/traits](https://npmjs.org/@rse/traits) base library. Currently,
 this standard library consists of the reusable traits *Identifiable*,
 *Configurable*,*Bindable*, *Subscribable*, *Hookable*, *Disposable*,
-*Traceable*, and *Serializable*.
+*Traceable*, and *Serializable*. All traits try to avoid any namespace
+conflicts with application code by prefixing their exposed functionality
+with the name prefix `$`.
 
 Installation
 ------------
@@ -41,7 +43,7 @@ Trait: *Identifiable*
 The reusable generic trait *Identifiable* allows you to attach a
 Universally Unique Identifier (UUID, version 1) to the ojects of a
 target class. You can then retrieve the UUID with the (read-only) `$id`
-property.
+property. Apply an *Identifiable* for unique identification.
 
 ```ts
 import { derive }       from "@rse/traits"
@@ -64,6 +66,7 @@ property `$configuration` and later you can retrieve the current
 configuration with it again. You can change the configuration with the
 method `$configure` by passing any subset (aka a "deep partial") of `T`
 and this way "merge" your changes into the configuration.
+Apply a *Configurable* for incrementally changing a configuration.
 
 ```ts
 import { derive }       from "@rse/traits"
@@ -101,7 +104,8 @@ The reusable generic trait *Bindable* allows you to bind to properties
 of a target class. The properties have to be defined in an interface
 `T` of `Bindable<T>` and defined as `@bindable accessor` on the target
 class. One can then bind to those properties with method `$bind` and
-observe all changes to the property.
+observe all changes to the property. Apply a *Bindable* for externally
+observing and reacting to property changes.
 
 ```ts
 import { derive }             from "@rse/traits"
@@ -112,22 +116,97 @@ interface Props { foo: number, bar: string }
 class Sample extends derive(Bindable<Props>) implements Props {
     @bindable accessor foo = 42
     @bindable accessor bar = "bar"
-    constructor () { super({}) }
 }
 
 const sample = new Sample()
-sample.$bind("foo", (val, old) => { console.log("foo:", val, old) })
-sample.$bind("bar", (val, old) => { console.log("bar:", val, old) })
+const b1 = sample.$bind("foo", (val, old) => { console.log("foo:", val, old) })
+const b2 = sample.$bind("bar", (val, old) => { console.log("bar:", val, old) })
 
 sample.foo += 1            // -> "foo: 43 42"
 sample.bar = "baz"         // -> "bar: baz bar"
+
+b1.unbind()
+b2.unbind()
 ```
 
 Trait: *Subscribable*
 ---------------------
 
+The reusable generic trait *Subscribable* allows you to subscribe to
+typed events emitted on a target class. The events have to be defined
+in an interface `T` of `Subscribable<T>`. One can then subscribe to
+those events with method `$subscribe` and emit those events with method
+`$emit`. Apply a *Subscribable* for externally observing and reacting to
+logical events.
+
+```ts
+import { derive }       from "@rse/traits"
+import { Subscribable } from "@rse/traits-stdlib"
+
+interface Events { foo: number, bar: string }
+
+class Sample extends derive(Subscribable<Events>) {}
+
+const sample = new Sample()
+const s1 = sample.$subscribe("foo", (val) => { console.log("foo:", val) } }, { limit: 1 })
+const s2 = sample.$subscribe("bar", (val) => { console.log("bar:", val) } })
+
+sample.$emit("foo", 42)      // -> "foo: 42"
+sample.$emit("foo", 7)       // -> (none)
+sample.$emit("bar", "quux")  // -> "bar: quux"
+sample.$emit("bar", "baz")   // -> "bar: baz"
+
+s1.unsubscribe()
+s2.unsubscribe()
+```
+
 Trait: *Hookable*
 -----------------
+
+The reusable generic trait *Hookable* allows you to attach hooks to
+a target class. The hooks have to be defined in an interface `T` of
+`Hookable<T>`. One can then latch into those hooks with method `$latch`
+and call those hooks with method `$hook`. Apply a *Hookable* for
+externally extending functionality.
+
+```ts
+import { derive }   from "@rse/traits"
+import { Hookable } from "@rse/traits-stdlib"
+
+interface Hooks {
+    "foo":  { foo2: string },
+    "bar":  { bar2: number },
+    "quux": undefined
+}
+class Sample extends derive(Hookable<Hooks>) {}
+
+const sample = new Sample()
+const l1 = sample.$latch("foo", { limit: 2 }, async (h, data) => {
+    console.log("foo:", data)
+    return h.CONTINUE
+})
+const l2 = sample.$latch("bar", { pos: "late" }, async (h, data) => {
+    console.log("bar: start:", data)
+    return new Promise((resolve) => {
+        console.log("bar: end:", data)
+        resolve(h.FINISH)
+    })
+})
+const l3 = sample.$latch("quux", async (h) => {
+    console.log("quux")
+    return h.CONTINUE
+})
+
+sample.$hook("foo",  { foo2: "foo1" }) // -> "foo: foo1"
+sample.$hook("foo",  { foo2: "foo2" }) // -> "foo: foo2"
+sample.$hook("foo",  { foo2: "foo3" }) // -> (none)
+sample.$hook("bar",  { bar2: 42 })     // -> "bar: start: 42", "bar: end: 42"
+sample.$hook("quux")                   // -> "quux"
+
+l1.unlatch()
+l2.unlatch()
+l3.unlatch()
+```
 
 Trait: *Disposable*
 -------------------
