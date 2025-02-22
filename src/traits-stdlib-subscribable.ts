@@ -33,13 +33,47 @@ export const Subscribable = <T extends EventMap>() => trait((base) => class Subs
         this.#emitter.setMaxListeners(100)
     }
 
-    /*  subscribe to an event  */
-    $on <K extends EventName<T>>
-        (eventName: K, fn: EventReceiver<T[K]>, options = {} as SubscribeOptions) {
-        return this.$subscribe(eventName, fn, options)
+    /*  subscribe to an event (alias)  */
+    $on <K extends EventName<T>>(
+        eventName:      K,
+        fn:             EventReceiver<T[K]>
+    ): Unsubscriber
+    $on <K extends EventName<T>>(
+        eventName:      K,
+        options:        SubscribeOptions,
+        fn?:            EventReceiver<T[K]>
+    ): Unsubscriber
+    $on <K extends EventName<T>>(
+        eventName:      K,
+        optionsOrCb:    SubscribeOptions | EventReceiver<T[K]>,
+        fn?:            EventReceiver<T[K]>
+    ): Unsubscriber {
+        if (fn)
+            return this.$subscribe(eventName, optionsOrCb as SubscribeOptions, fn)
+        else
+            return this.$subscribe(eventName, optionsOrCb as EventReceiver<T[K]>)
     }
-    $subscribe <K extends EventName<T>>
-        (eventName: K, fn: EventReceiver<T[K]>, options = {} as SubscribeOptions) {
+
+    /*  subscribe to an event  */
+    $subscribe <K extends EventName<T>>(
+        eventName:      K,
+        fn:             EventReceiver<T[K]>
+    ): Unsubscriber
+    $subscribe <K extends EventName<T>>(
+        eventName:      K,
+        options:        SubscribeOptions,
+        fn:             EventReceiver<T[K]>
+    ): Unsubscriber
+    $subscribe <K extends EventName<T>>(
+        eventName:      K,
+        optionsOrCb:    SubscribeOptions | EventReceiver<T[K]>,
+        fn?:            EventReceiver<T[K]>
+    ): Unsubscriber {
+        /*  determine options despite signature overloading  */
+        const options = (fn ? optionsOrCb : {}) as SubscribeOptions
+        fn ??= optionsOrCb as EventReceiver<T[K]>
+
+        /*  pass-through functionality to internal EventEmitter  */
         if (options?.limit !== undefined) {
             if (options?.prepend)
                 this.#emitter.prependMany(eventName, options.limit, fn,

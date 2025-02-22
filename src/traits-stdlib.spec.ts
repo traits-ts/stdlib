@@ -112,9 +112,9 @@ describe("@rse/traits-stdlib", () => {
             }
         }
         const app = new App()
-        app.$subscribe("foo", (val) => {
+        app.$subscribe("foo", { limit: 1 }, (val) => {
             expect(val).to.be.equal(42)
-        }, { limit: 1 })
+        })
         app.$subscribe("bar", (val) => {
             expect(val).to.be.equal("quux")
         })
