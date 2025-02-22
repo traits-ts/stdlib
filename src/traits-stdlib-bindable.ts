@@ -67,8 +67,8 @@ export const Bindable = <T extends PropMap>() => trait((base) => class Bindable 
     #emitter = new EventEmitter()
 
     /*  trait construction  */
-    constructor (params: { [key: string]: unknown } | undefined) {
-        super(params)
+    constructor (...args: any[]) {
+        super(...args)
 
         /*  configure emitter  */
         this.#emitter.setMaxListeners(100)

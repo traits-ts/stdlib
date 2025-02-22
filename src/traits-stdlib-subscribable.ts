@@ -26,8 +26,8 @@ export const Subscribable = <T extends EventMap>() => trait((base) => class Subs
     #emitter = new EventEmitter()
 
     /*  trait construction  */
-    constructor (params: { [key: string]: unknown } | undefined) {
-        super(params)
+    constructor (...args: any[]) {
+        super(...args)
 
         /*  configure emitter  */
         this.#emitter.setMaxListeners(100)

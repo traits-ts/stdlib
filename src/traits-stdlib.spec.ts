@@ -71,7 +71,7 @@ describe("@rse/traits-stdlib", () => {
             @bindable accessor foo = 42
             @bindable accessor bar = "barx"
             constructor () {
-                super({})
+                super()
                 console.log("App")
             }
             raise () {

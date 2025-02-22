@@ -207,10 +207,9 @@ const serialize = (obj: any, refs = new Map<object, number>()): SerializeNode =>
         throw new Error("invalid type of @serializable property")
 }
 
+/*  utility type: extract type of node  */
 type ExtractNodeType<T extends { t: string }> =
     T["t"] extends infer U ? U : never
-// type ExtractNodeType<T extends { t: `${string}` }> =
-//     T["t"] extends `${infer U}` ? U : never
 
 /*  utility function: serialize data  */
 const unserialize = <T extends SerializeNode> (obj: T, derefs = new Map<number, object>()):

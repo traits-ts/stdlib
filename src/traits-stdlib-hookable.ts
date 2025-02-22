@@ -62,11 +62,6 @@ export const Hookable = <T extends HookMap>() => trait((base) => class Hookable 
     /*  internal state  */
     #hooks = new Map<string, HookCallbacks>()
 
-    /*  trait construction  */
-    constructor (params: { [key: string]: unknown } | undefined) {
-        super(params)
-    }
-
     /*  define a hook  */
     async $hook<
         N extends HookName<T>>
