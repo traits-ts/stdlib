@@ -114,17 +114,5 @@ export const Bindable = <T extends PropMap>() => trait((base) => class Bindable 
     $unbind<K extends PropKey<T>>(prop: K, fn: PropReceiver<T[K]>) {
         this.#emitter.off(prop, fn)
     }
-
-    /*  set a new property value (alternative)  */
-    $set<K extends PropKey<T>>(prop: K, value: T[K]) {
-        /*  just pass-through operation to auto-accessor "set" function  */
-        (this[prop] as unknown as T[K]) = value
-    }
-
-    /*  get a property value (alternative)  */
-    $get<K extends PropKey<T>>(prop: K): T[K] {
-        /*  just pass-through operation to auto-accessor "get" function  */
-        return this[prop] as unknown as T[K]
-    }
 })
 
