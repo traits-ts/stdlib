@@ -4,12 +4,15 @@
 **  Licensed under MIT license <https://spdx.org/licenses/MIT>
 */
 
+/*  import testing libraries  */
 import * as chai from "chai"
 import sinon     from "sinon"
 import sinonChai from "sinon-chai"
 
+/*  import primary API  */
 import { derive } from "@rse/traits"
 
+/*  import secondary API  */
 import {
     Identifiable,
     Configurable,
@@ -19,28 +22,35 @@ import {
     Disposable,
     Traceable,
     Serializable, serializable
-}  from "./traits-stdlib"
+} from "./traits-stdlib"
 
+/*  configure testing libraries  */
 const expect = chai.expect
 chai.config.includeStack = true
 chai.use(sinonChai)
 
+/*  utility type: deep variant of Partial<T>  */
 type DeepPartial<T> = T extends object ? { [ P in keyof T ]?: DeepPartial<T[P]> } : T
 
+/*  describe test suite  */
 describe("@rse/traits-stdlib", () => {
-
-    it("Identifiable", async () => {
+    /*  test aspect: trait Indentifiable  */
+    it("trait Identifiable", async () => {
         expect(Identifiable).to.be.a("object")
+
         class App extends derive(Identifiable) {}
         const app1 = new App()
         const app2 = new App()
+
         expect(app1.$id).to.match(/^.............-....-....-............$/)
         expect(app2.$id).to.match(/^.............-....-....-............$/)
         expect(app1.$id).to.be.not.equal(app2.$id)
     })
 
-    it("Configurable", async () => {
+    /*  test aspect: trait Configurable  */
+    it("trait Configurable", async () => {
         expect(Configurable).to.be.a("function")
+
         type Config = {
             foo: number,
             bar: string
@@ -55,72 +65,105 @@ describe("@rse/traits-stdlib", () => {
                 baz: {
                     quux: true
                 }
-            } satisfies Config
+            }
             sample () {
                 return this.$configuration.baz.quux
             }
         }
         const app = new App()
-        expect(app.$configuration).to.be.deep.equal({ foo: 42, bar: "bar", baz: { quux: true } })
+
+        expect(app.sample()).to.be.equal(true)
+        expect(app.$configuration).to.be.deep
+            .equal({ foo: 42, bar: "bar", baz: { quux: true } })
+
         app.$configure({ foo: 7, baz: { quux: false } })
-        expect(app.$configuration).to.be.deep.equal({ foo: 7, bar: "bar", baz: { quux: false } })
+
+        expect(app.sample()).to.be.equal(false)
+        expect(app.$configuration).to.be.deep
+            .equal({ foo: 7, bar: "bar", baz: { quux: false } })
     })
 
-    it("Bindable", async () => {
+    /*  test aspect: trait Bindable  */
+    it("trait Bindable", async () => {
         expect(Bindable).to.be.a("function")
-        interface State { foo: number, bar: string }
+
+        interface State {
+            foo: number,
+            bar: string
+        }
         class App extends derive(Bindable<State>) implements State {
             @bindable accessor foo = 42
-            @bindable accessor bar = "barx"
-            constructor () {
-                super()
-                console.log("App")
-            }
+            @bindable accessor bar = "baz"
             raise () {
                 this.foo += 1
             }
         }
+
         const app = new App()
-        app.$bind("foo", (val, old) => {
-            console.log("foo-bind", val, old)
+
+        const spy = sinon.spy()
+        app.$bind("foo", { limit: 1 }, (val, old) => {
+            spy(`foo1:${val}:${old}`)
+        })
+        app.$bind("foo", { prepend: true }, (val, old) => {
+            spy(`foo2:${val}:${old}`)
         })
         app.$bind("bar", (val, old) => {
-            console.log("bar-bind", val, old)
+            spy(`bar:${val}:${old}`)
         })
-        app.foo = 7
-        console.log("foo=", app.foo)
-        app.bar = "barrrrr"
-        console.log("bar=", app.bar)
         app.raise()
-        console.log("foo=", app.foo)
-        console.log("bar=", app.bar)
-        app.foo += 1
+        app.raise()
+        app.bar += "x"
         app.bar += "y"
-        console.log("foo=", app.foo)
-        console.log("bar=", app.bar)
+        app.bar += "z"
+        expect(spy.getCalls().map((x) => x.args[0]))
+            .to.be.deep.equal([
+                "foo2:43:42", "foo1:43:42",
+                "foo2:44:43",
+                "bar:bazx:baz",
+                "bar:bazxy:bazx",
+                "bar:bazxyz:bazxy"
+            ])
     })
 
-    it("Subscribable", async () => {
+    /*  test aspect: trait Subscribable  */
+    it("trait Subscribable", async () => {
         expect(Subscribable).to.be.a("function")
+
         interface Events {
             "foo": number,
             "bar": string
         }
         class App extends derive(Subscribable<Events>) {
-            constructor () { super({}) }
             raise () {
                 this.$emit("foo", 42)
                 this.$emit("bar", "quux")
             }
         }
         const app = new App()
+
+        const spy = sinon.spy()
         app.$subscribe("foo", { limit: 1 }, (val) => {
-            expect(val).to.be.equal(42)
+            spy(`foo1:${val}`)
+        })
+        app.$subscribe("foo", { prepend: true }, (val) => {
+            spy(`foo2:${val}`)
         })
         app.$subscribe("bar", (val) => {
-            expect(val).to.be.equal("quux")
+            spy(`bar:${val}`)
         })
         app.raise()
+        app.raise()
+        app.raise()
+        expect(spy.getCalls().map((x) => x.args[0]))
+            .to.be.deep.equal([
+                "foo2:42", "foo1:42",
+                "bar:quux",
+                "foo2:42",
+                "bar:quux",
+                "foo2:42",
+                "bar:quux"
+            ])
     })
 
     it("Hookable", async () => {
