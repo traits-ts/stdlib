@@ -4,24 +4,39 @@
 **  Licensed under MIT license <https://spdx.org/licenses/MIT>
 */
 
-import { trait }        from "@rse/traits"
-import EventEmitter     from "eventemitter2"
+import { trait } from "@rse/traits"
 
 /*  types for the property handling  */
 type PropMap                    = Record<string, any>
 type PropKey<T extends PropMap> = string & keyof T
 type PropReceiver<T>            = (valNew: T, valOld: T) => void
 
-/*  interface of type returned by "bind" for unbinding  */
-interface Unbinder {
-    unbind (): void
-}
+/*  types for the binding position  */
+type  BindPosition      = "early" | "main" | "late"
+const BindPositionNames = [ "early", "main", "late" ] satisfies Array<BindPosition>
 
 /*  type for options of "bind"  */
 type BindOptions = {
-    prepend?: boolean
-    limit?:   number
-    async?:   boolean
+    pos?:    BindPosition
+    limit?:  number
+    async?:  boolean
+}
+
+/*  types and interface for internal binding store  */
+type BindCallbackInfo<T extends any = any> = {
+    fn:      PropReceiver<T>,
+    limit:   number,
+    async:   boolean
+}
+interface BindCallbacks {
+    "early": Array<BindCallbackInfo>
+    "main":  Array<BindCallbackInfo>
+    "late":  Array<BindCallbackInfo>
+}
+
+/*  interface of type returned by "bind" for unbinding  */
+interface Unbinder {
+    unbind (): void
 }
 
 /*  the API decorator @bindable for auto-accessors  */
@@ -64,19 +79,50 @@ export function bindable<This, Value extends any> (
 /*  the API trait "Bindable<T>"  */
 export const Bindable = <T extends PropMap>() => trait((base) => class Bindable extends base {
     /*  internal state  */
-    #emitter = new EventEmitter()
+    #bindings = new Map<PropKey<T>, BindCallbacks>()
 
     /*  trait construction  */
     constructor (...args: any[]) {
         super(...args)
 
-        /*  configure emitter  */
-        this.#emitter.setMaxListeners(100)
-
         /*  provide bridge from auto-accessor decorator to class instance  */
         Object.defineProperty(this, "__emit", {
-            value: <K extends PropKey<T>>(prop: K, oldValue: T[K], newValue: T[K]): void => {
-                this.#emitter.emit(prop, oldValue, newValue)
+            value: <K extends PropKey<T>>(prop: K, newValue: T[K], oldValue: T[K]): void => {
+                const callbacks = this.#bindings.get(prop)
+                if (callbacks !== undefined) {
+                    /*  remember cleanups  */
+                    const cleanups: Array<() => void> = []
+
+                    for (const group of [ "early", "main", "late" ] as Array<BindPosition>) {
+                        /*  iterate over all registered hooks  */
+                        for (let i = 0; i < callbacks[group].length; i++) {
+                            const info = callbacks[group][i]
+
+                            /*  support limit  */
+                            if (info.limit === 0) {
+                                cleanups.push(() => {
+                                    delete callbacks[group][i]
+                                    if (   callbacks["early"].length === 0
+                                        && callbacks["main"].length  === 0
+                                        && callbacks["late"].length  === 0)
+                                        this.#bindings.delete(prop)
+                                })
+                                continue
+                            }
+                            else if (info.limit > 0)
+                                info.limit--
+
+                            /*  call registered hook  */
+                            if (info.async)
+                                setTimeout(() => { info.fn(newValue, oldValue) }, 0)
+                            else
+                                info.fn(newValue, oldValue)
+                        }
+                    }
+
+                    /*  execute cleanup  */
+                    cleanups.forEach((cb) => { cb() })
+                }
             },
             writable:     false,
             enumerable:   false,
@@ -103,23 +149,23 @@ export const Bindable = <T extends PropMap>() => trait((base) => class Bindable 
         const options = (fn ? optionsOrFn : {}) as BindOptions
         fn ??= optionsOrFn as PropReceiver<T[K]>
 
-        /*  pass-through functionality to internal EventEmitter  */
-        if (options?.limit !== undefined) {
-            if (options?.prepend)
-                this.#emitter.prependMany(prop, options.limit, fn,
-                    { ...(options?.async ? { async: true } : {}) })
-            else
-                this.#emitter.many(prop, options.limit, fn,
-                    { ...(options?.async ? { async: true } : {}) })
+        /*  ensure that the bindings store has slots  */
+        if (!this.#bindings.has(prop)) {
+            this.#bindings.set(prop, {
+                "early": [] as Array<BindCallbackInfo>,
+                "main":  [] as Array<BindCallbackInfo>,
+                "late":  [] as Array<BindCallbackInfo>
+            } satisfies BindCallbacks)
         }
-        else {
-            if (options?.prepend)
-                this.#emitter.prependListener(prop, fn,
-                    { ...(options?.async ? { async: true } : {}) })
-            else
-                this.#emitter.on(prop, fn,
-                    { ...(options?.async ? { async: true } : {}) })
-        }
+
+        /*  register the callback  */
+        this.#bindings.get(prop)![options.pos ?? "main"].push({
+            fn,
+            limit: options.limit ?? -1,
+            async: options.async ?? false
+        })
+
+        /*  provide unbinding  */
         const self = this
         return {
             unbind () {
@@ -133,7 +179,27 @@ export const Bindable = <T extends PropMap>() => trait((base) => class Bindable 
         prop: K,
         fn:   PropReceiver<T[K]>
     ) {
-        this.#emitter.off(prop, fn)
+        const callbacks = this.#bindings.get(prop)
+        if (callbacks !== undefined) {
+            /*  iterate over all groups  */
+            for (const group of BindPositionNames) {
+                /*  iterate over all registered callbacks  */
+                for (let i = 0; i < callbacks[group].length; i++) {
+                    const info = callbacks[group][i]
+                    if (info.fn === fn) {
+                        /*  delete registered callback  */
+                        /* eslint @typescript-eslint/no-dynamic-delete: off */
+                        delete callbacks[group][i]
+                        if (   callbacks["early"].length === 0
+                            && callbacks["main"].length  === 0
+                            && callbacks["late"].length  === 0)
+                            this.#bindings.delete(prop)
+                        return
+                    }
+                }
+            }
+        }
+        throw new Error("no such binding found")
     }
 })
 

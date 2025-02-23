@@ -105,7 +105,7 @@ describe("@rse/traits-stdlib", () => {
         app.$bind("foo", { limit: 1 }, (val, old) => {
             spy(`foo1:${val}:${old}`)
         })
-        app.$bind("foo", { prepend: true }, (val, old) => {
+        app.$bind("foo", { pos: "early" }, (val, old) => {
             spy(`foo2:${val}:${old}`)
         })
         app.$bind("bar", (val, old) => {
