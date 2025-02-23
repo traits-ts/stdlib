@@ -61,7 +61,6 @@
         "@rse/traits":                   "../traits"
     },
     "dependencies": {
-        "eventemitter2":                 "6.4.9",
         "pure-uuid":                     "1.8.1",
         "moment":                        "2.30.1"
     },

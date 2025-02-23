@@ -101,7 +101,7 @@ export const Bindable = <T extends PropMap>() => trait((base) => class Bindable 
                             /*  support limit  */
                             if (info.limit === 0) {
                                 cleanups.push(() => {
-                                    delete callbacks[group][i]
+                                    callbacks[group].splice(i, 1)
                                     if (   callbacks["early"].length === 0
                                         && callbacks["main"].length  === 0
                                         && callbacks["late"].length  === 0)
@@ -189,7 +189,7 @@ export const Bindable = <T extends PropMap>() => trait((base) => class Bindable 
                     if (info.fn === fn) {
                         /*  delete registered callback  */
                         /* eslint @typescript-eslint/no-dynamic-delete: off */
-                        delete callbacks[group][i]
+                        callbacks[group].splice(i, 1)
                         if (   callbacks["early"].length === 0
                             && callbacks["main"].length  === 0
                             && callbacks["late"].length  === 0)

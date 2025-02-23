@@ -146,7 +146,7 @@ describe("@rse/traits-stdlib", () => {
         app.$subscribe("foo", { limit: 1 }, (val) => {
             spy(`foo1:${val}`)
         })
-        app.$subscribe("foo", { prepend: true }, (val) => {
+        app.$subscribe("foo", { pos: "early" }, (val) => {
             spy(`foo2:${val}`)
         })
         app.$subscribe("bar", (val) => {
