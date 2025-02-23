@@ -61,8 +61,7 @@
         "@rse/traits":                   "../traits"
     },
     "dependencies": {
-        "pure-uuid":                     "1.8.1",
-        "moment":                        "2.30.1"
+        "pure-uuid":                     "1.8.1"
     },
     "peerDependencies": {
         "@rse/traits":                   ">=1.0.0"
