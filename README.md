@@ -86,7 +86,7 @@ class Sample extends derive(Configurable<Config>) {
         baz: {
             quux: true
         }
-    } satisfies Config
+    }
 }
 
 const sample = new Sample()
