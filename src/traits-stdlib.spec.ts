@@ -16,6 +16,8 @@ import {
     Subscribable,
     Bindable, bindable,
     Hookable,
+    Disposable,
+    Traceable,
     Serializable, serializable
 }  from "./traits-stdlib"
 
@@ -147,13 +149,42 @@ describe("@rse/traits-stdlib", () => {
         app.$hook("bar", { bar2: 42 })
     })
 
+    it("Disposable", async () => {
+        expect(Disposable).to.be.a("object")
+        class App extends derive(Disposable) {
+            constructor () {
+                super()
+                console.log("CREATE")
+            }
+            $dispose () {
+                console.log("DISPOSE")
+            }
+        }
+        const app = new App()
+    })
+
+    it("Traceable", async () => {
+        expect(Traceable).to.be.a("function")
+        type  LogLevelsType   = "ERROR" | "WARNING" | "INFO"
+        const LogLevelsDefine = [ "ERROR", "WARNING", "INFO" ] satisfies LogLevelsType[]
+        interface LogEvents { "log": string }
+        class Sample extends derive(Traceable<LogLevelsType>, Subscribable<LogEvents>) {
+            $logLevels = LogLevelsDefine
+            $logLevel  = "INFO" as LogLevelsType
+            $logOutput = (line: string) => { this.$emit("log", line) }
+            action () {
+                this.$log("INFO", "test", { foo: "bar" })
+            }
+        }
+        const sample = new Sample()
+        sample.$subscribe("log", (line) => {
+            console.log("LOG", line)
+        })
+        sample.action()
+    })
+
     it("Serializable", async () => {
         expect(Serializable).to.be.a("object")
-        interface Serializables {
-            foo:  boolean
-            bar:  number
-            quux: string
-        }
         /* eslint no-use-before-define: off */
         @serializable
         class App extends derive(Serializable) {
@@ -178,6 +209,7 @@ describe("@rse/traits-stdlib", () => {
         const x = app2.$serialize()
         console.log(x)
         const obj = App.$unserialize(x)
+        console.log(obj)
     })
 })
 
