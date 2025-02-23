@@ -85,7 +85,25 @@ export const Bindable = <T extends PropMap>() => trait((base) => class Bindable 
     }
 
     /*  bind to a property change  */
-    $bind<K extends PropKey<T>>(prop: K, fn: PropReceiver<T[K]>, options = {} as BindOptions) {
+    $bind<K extends PropKey<T>>(
+        prop:        K,
+        fn:          PropReceiver<T[K]>
+    ): Unbinder
+    $bind<K extends PropKey<T>>(
+        prop:        K,
+        options:     BindOptions,
+        fn:          PropReceiver<T[K]>
+    ): Unbinder
+    $bind<K extends PropKey<T>>(
+        prop:        K,
+        optionsOrFn: BindOptions | PropReceiver<T[K]>,
+        fn?:         PropReceiver<T[K]>
+    ) {
+        /*  determine options despite signature overloading  */
+        const options = (fn ? optionsOrFn : {}) as BindOptions
+        fn ??= optionsOrFn as PropReceiver<T[K]>
+
+        /*  pass-through functionality to internal EventEmitter  */
         if (options?.limit !== undefined) {
             if (options?.prepend)
                 this.#emitter.prependMany(prop, options.limit, fn,
@@ -111,7 +129,10 @@ export const Bindable = <T extends PropMap>() => trait((base) => class Bindable 
     }
 
     /*  unbind from a property change  */
-    $unbind<K extends PropKey<T>>(prop: K, fn: PropReceiver<T[K]>) {
+    $unbind<K extends PropKey<T>>(
+        prop: K,
+        fn:   PropReceiver<T[K]>
+    ) {
         this.#emitter.off(prop, fn)
     }
 })
