@@ -2,28 +2,28 @@
 lang: en
 ---
 
-<img src="https://raw.githubusercontent.com/rse/traits/refs/heads/master/etc/logo.svg" width="200" style="float: right" align="right" alt=""/>
+<img src="https://raw.githubusercontent.com/traits-ts/core/refs/heads/master/etc/logo.svg" width="200" style="float: right" align="right" alt=""/>
 
-Traits Standard Library
-=======================
+@traits-ts/stdlib
+=================
 
-**Traits for TypeScript Classes: Standard Library**
+**Traits for TypeScript Classes (Standard Library)**
 
 <p/>
-<img src="https://nodei.co/npm/@rse/traits-stdlib.png?downloads=true&stars=true" alt=""/>
+<img src="https://nodei.co/npm/@traits-ts/stdlib.png?downloads=true&stars=true" alt=""/>
 
 [![github (author stars)](https://img.shields.io/github/stars/rse?logo=github&label=author%20stars&color=%233377aa)](https://github.com/rse)
 [![github (author followers)](https://img.shields.io/github/followers/rse?label=author%20followers&logo=github&color=%234477aa)](https://github.com/rse)
 <br/>
-[![npm (project release)](https://img.shields.io/npm/v/@rse/traits-stdlib?logo=npm&label=npm%20release&color=%23cc3333)](https://npmjs.com/@rse/traits)
-[![npm (project downloads)](https://img.shields.io/npm/dm/@rse/traits-stdlib?logo=npm&label=npm%20downloads&color=%23cc3333)](https://npmjs.com/@rse/traits)
+[![npm (project release)](https://img.shields.io/npm/v/@traits-ts/stdlib?logo=npm&label=npm%20release&color=%23cc3333)](https://npmjs.com/@traits-ts/core)
+[![npm (project downloads)](https://img.shields.io/npm/dm/@traits-ts/stdlib?logo=npm&label=npm%20downloads&color=%23cc3333)](https://npmjs.com/@traits-ts/core)
 
 About
 -----
 
 This is a small TypeScript library providing a standard library
 of reusable, generic, typed traits (aka mixins), based on the
-[@rse/traits](https://npmjs.org/@rse/traits) base library. Currently,
+[@traits-ts/core](https://npmjs.org/@traits-ts/core) base library. Currently,
 this standard library consists of the reusable traits *Identifiable*,
 *Configurable*,*Bindable*, *Subscribable*, *Hookable*, *Disposable*,
 *Traceable*, and *Serializable*. All traits try to avoid any namespace
@@ -34,7 +34,7 @@ Installation
 ------------
 
 ```sh
-$ npm install --save @rse/traits @rse/traits-stdlib
+$ npm install --save @traits-ts/core @traits-ts/stdlib
 ```
 
 Trait: *Identifiable*
@@ -46,8 +46,8 @@ target class. You can then retrieve the UUID with the (read-only) `$id`
 property. Apply an *Identifiable* for unique identification.
 
 ```ts
-import { derive }       from "@rse/traits"
-import { Identifiable } from "@rse/traits-stdlib"
+import { derive }       from "@traits-ts/core"
+import { Identifiable } from "@traits-ts/stdlib"
 
 class Sample extends derive(Identifiable) {}
 
@@ -69,8 +69,8 @@ and this way "merge" your changes into the configuration.
 Apply a *Configurable* for incrementally changing a configuration.
 
 ```ts
-import { derive }       from "@rse/traits"
-import { Configurable } from "@rse/traits-stdlib"
+import { derive }       from "@traits-ts/core"
+import { Configurable } from "@traits-ts/stdlib"
 
 type Config = {
     foo: number,
@@ -108,8 +108,8 @@ observe all changes to the property. Apply a *Bindable* for allowing
 the external observing and reacting to property changes.
 
 ```ts
-import { derive }             from "@rse/traits"
-import { Bindable, bindable } from "@rse/traits-stdlib"
+import { derive }             from "@traits-ts/core"
+import { Bindable, bindable } from "@traits-ts/stdlib"
 
 interface Props { foo: number, bar: string }
 
@@ -140,8 +140,8 @@ those events with method `$subscribe` and emit those events with method
 logical events.
 
 ```ts
-import { derive }       from "@rse/traits"
-import { Subscribable } from "@rse/traits-stdlib"
+import { derive }       from "@traits-ts/core"
+import { Subscribable } from "@traits-ts/stdlib"
 
 interface Events { "foo": number, "bar": string }
 
@@ -174,8 +174,8 @@ and call those hooks with method `$hook`. Apply a *Hookable* for
 allowing the external extension of functionality.
 
 ```ts
-import { derive }   from "@rse/traits"
-import { Hookable } from "@rse/traits-stdlib"
+import { derive }   from "@traits-ts/core"
+import { Hookable } from "@traits-ts/stdlib"
 
 interface Hooks {
     "foo":  { arg: string },
@@ -222,8 +222,8 @@ you the `$dispose` method just for fully optional memory deallocation
 tasks.
 
 ```ts
-import { derive }     from "@rse/traits"
-import { Disposable } from "@rse/traits-stdlib"
+import { derive }     from "@traits-ts/core"
+import { Disposable } from "@traits-ts/stdlib"
 
 class Sample extends derive(Disposable) {
     $dispose () {
@@ -249,8 +249,8 @@ Apply a *Traceable* for allowing a target class to perform simple
 logging.
 
 ```ts
-import { derive }    from "@rse/traits"
-import { Traceable } from "@rse/traits-stdlib"
+import { derive }    from "@traits-ts/core"
+import { Traceable } from "@traits-ts/stdlib"
 
 type  LogLevelsType   = "ERROR" | "WARNING" | "INFO"
 const LogLevelsDefine = [ "ERROR", "WARNING", "INFO" ] satisfies LogLevelsType[]
@@ -282,8 +282,8 @@ Apply a *Serializable* for allowing a target class and its dependencies
 to be exported and imported.
 
 ```ts
-import { derive }                     from "@rse/traits"
-import { Serializable, serializable } from "@rse/traits-stdlib"
+import { derive }                     from "@traits-ts/core"
+import { Serializable, serializable } from "@traits-ts/stdlib"
 
 @serializable
 class Sample extends derive(Serializable) {

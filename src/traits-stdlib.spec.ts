@@ -1,5 +1,5 @@
 /*
-**  @rse/traits-stdlib - Traits for TypeScript Classes: Standard Library
+**  @traits-ts/stdlib - Traits for TypeScript Classes: Standard Library
 **  Copyright (c) 2025 Dr. Ralf S. Engelschall <rse@engelschall.com>
 **  Licensed under MIT license <https://spdx.org/licenses/MIT>
 */
@@ -33,7 +33,7 @@ chai.use(sinonChai)
 type DeepPartial<T> = T extends object ? { [ P in keyof T ]?: DeepPartial<T[P]> } : T
 
 /*  describe test suite  */
-describe("@rse/traits-stdlib", () => {
+describe("@traits-ts/stdlib", () => {
     /*  test aspect: trait Indentifiable  */
     it("trait Identifiable", async () => {
         expect(Identifiable).to.be.a("object")
