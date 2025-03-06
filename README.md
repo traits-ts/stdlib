@@ -9,7 +9,7 @@
 <p/>
 <a href="https://traits-ts.org">Project Home</a> |
 <a href="https://github.com/traits-ts/stdlib">Github Repository</a> |
-<a href="https://npmjs.com/traits-ts/stdlib">NPM Distribution</a>
+<a href="https://npmjs.com/@traits-ts/stdlib">NPM Distribution</a>
 
 <p/>
 <img src="https://nodei.co/npm/@traits-ts/stdlib.png?downloads=true&stars=true" alt=""/>
