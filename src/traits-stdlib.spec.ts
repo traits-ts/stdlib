@@ -168,6 +168,7 @@ describe("@rse/traits-stdlib", () => {
 
     it("Hookable", async () => {
         expect(Hookable).to.be.a("function")
+
         interface Hooks {
             "foo":  { foo2: string },
             "bar":  { bar2: number },
@@ -175,21 +176,30 @@ describe("@rse/traits-stdlib", () => {
         }
         class App extends derive(Hookable<Hooks>) {}
         const app = new App()
+
+        const spy = sinon.spy()
         app.$latch("foo", { limit: 2 }, async (data) => {
-            console.log("foo", data)
+            spy(`foo:${data.foo2}`)
             return Hookable.CONTINUE
         })
         app.$latch("bar", { pos: "late" }, (data) => {
-            console.log("bar start", data)
+            spy(`bar:${data.bar2}:start`)
             return new Promise((resolve) => {
-                console.log("bar end", data)
+                spy(`bar:${data.bar2}:end`)
                 resolve(Hookable.FINISH)
             })
         })
-        app.$hook("foo", { foo2: "aha" })
-        app.$hook("foo", { foo2: "soso" })
-        app.$hook("foo", { foo2: "hmm" })
+        app.$hook("foo", { foo2: "foo1" })
+        app.$hook("foo", { foo2: "foo2" })
+        app.$hook("foo", { foo2: "foo3" })
         app.$hook("bar", { bar2: 42 })
+        expect(spy.getCalls().map((x) => x.args[0]))
+            .to.be.deep.equal([
+                "foo:foo1",
+                "foo:foo2",
+                "bar:42:start",
+                "bar:42:end"
+            ])
     })
 
     it("Disposable", async () => {
@@ -197,10 +207,8 @@ describe("@rse/traits-stdlib", () => {
         class App extends derive(Disposable) {
             constructor () {
                 super()
-                console.log("CREATE")
             }
             $dispose () {
-                console.log("DISPOSE")
             }
         }
         const app = new App()
@@ -220,10 +228,13 @@ describe("@rse/traits-stdlib", () => {
             }
         }
         const sample = new Sample()
+        const spy = sinon.spy()
         sample.$subscribe("log", (line) => {
-            console.log("LOG", line)
+            spy(`log:${line}`)
         })
         sample.action()
+        expect(spy.getCalls().map((x) => x.args[0]).join(""))
+            .to.match(/^log:....-..-.. ..:..:......: \[INFO\] test \(foo: "bar"\)$/)
     })
 
     it("Serializable", async () => {
@@ -238,7 +249,6 @@ describe("@rse/traits-stdlib", () => {
             @serializable quux = "quux"
             @serializable sub?: App = undefined
             constructor (sub?: App)  {
-                console.log("App create")
                 super()
                 if (sub) {
                     this.sub = sub
@@ -250,9 +260,8 @@ describe("@rse/traits-stdlib", () => {
         const app1 = new App()
         const app2 = new App(app1)
         const x = app2.$serialize()
-        console.log(x)
         const obj = App.$unserialize(x)
-        console.log(obj)
+        expect(obj).to.be.deep.equal(app2)
     })
 })
 
