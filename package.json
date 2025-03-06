@@ -3,7 +3,7 @@
     "publishConfig":                     { "access": "public" },
     "description":                       "Traits for TypeScript Classes: Standard Library",
     "keywords":                          [ "traits", "class", "mixin", "standard", "library" ],
-    "homepage":                          "http://github.com/traits-ts/stdlib",
+    "homepage":                          "https://traits-ts.org",
     "repository":                        { "url": "git+https://github.com/traits-ts/stdlib.git", "type": "git" },
     "bugs":                              { "url": "http://github.com/traits-ts/stdlib/issues" },
     "version":                           "0.9.2",
