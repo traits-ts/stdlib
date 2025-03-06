@@ -4,7 +4,7 @@
 **  Licensed under MIT license <https://spdx.org/licenses/MIT>
 */
 
-import { trait } from "@rse/traits"
+import { trait } from "@traits-ts/core"
 
 /*  types for the property handling  */
 type PropMap                    = Record<string, any>

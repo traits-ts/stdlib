@@ -4,7 +4,7 @@
 **  Licensed under MIT license <https://spdx.org/licenses/MIT>
 */
 
-import { trait } from "@rse/traits"
+import { trait } from "@traits-ts/core"
 
 type EventMap                      = Record<string, any>
 type EventName<T extends EventMap> = string & keyof T

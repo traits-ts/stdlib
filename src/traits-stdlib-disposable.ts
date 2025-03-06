@@ -4,7 +4,7 @@
 **  Licensed under MIT license <https://spdx.org/licenses/MIT>
 */
 
-import { trait } from "@rse/traits"
+import { trait } from "@traits-ts/core"
 
 /*  the central class instance registry  */
 const registry = new FinalizationRegistry((fn: () => void) => {

@@ -10,7 +10,7 @@ import sinon     from "sinon"
 import sinonChai from "sinon-chai"
 
 /*  import primary API  */
-import { derive } from "@rse/traits"
+import { derive } from "@traits-ts/core"
 
 /*  import secondary API  */
 import {
