@@ -25,7 +25,7 @@ About
 
 This is a small TypeScript library providing a standard library
 of reusable, generic, typed traits (aka mixins), based on the
-[@traits-ts/core](https://npmjs.org/@traits-ts/core) base library. Currently,
+[@traits-ts/core](https://github.com/traits-ts/core) base library. Currently,
 this standard library consists of the reusable traits *Identifiable*,
 *Configurable*,*Bindable*, *Subscribable*, *Hookable*, *Disposable*,
 *Traceable*, and *Serializable*. All traits try to avoid any namespace
