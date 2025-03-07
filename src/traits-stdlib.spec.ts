@@ -166,7 +166,7 @@ describe("@traits-ts/stdlib", () => {
             ])
     })
 
-    it("Hookable", async () => {
+    it("trait Hookable", async () => {
         expect(Hookable).to.be.a("function")
 
         interface Hooks {
@@ -202,7 +202,7 @@ describe("@traits-ts/stdlib", () => {
             ])
     })
 
-    it("Finalizable", async () => {
+    it("trait Finalizable", async () => {
         expect(Finalizable).to.be.a("object")
         class App extends derive(Finalizable) {
             constructor () {
@@ -214,7 +214,7 @@ describe("@traits-ts/stdlib", () => {
         const app = new App()
     })
 
-    it("Traceable", async () => {
+    it("trait Traceable", async () => {
         expect(Traceable).to.be.a("function")
         type  LogLevelsType   = "ERROR" | "WARNING" | "INFO"
         const LogLevelsDefine = [ "ERROR", "WARNING", "INFO" ] satisfies LogLevelsType[]
@@ -237,7 +237,7 @@ describe("@traits-ts/stdlib", () => {
             .to.match(/^log:....-..-.. ..:..:......: \[INFO\] test \(foo: "bar"\)$/)
     })
 
-    it("Serializable", async () => {
+    it("trait Serializable", async () => {
         expect(Serializable).to.be.a("object")
         /* eslint no-use-before-define: off */
         @serializable
