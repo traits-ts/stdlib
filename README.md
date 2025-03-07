@@ -29,7 +29,7 @@ reusable, generic, typed *traits* (aka *mixins*), based on the
 
 Currently,
 this standard library consists of the reusable traits *Identifiable*,
-*Configurable*, *Bindable*, *Subscribable*, *Hookable*, *Disposable*,
+*Configurable*, *Bindable*, *Subscribable*, *Hookable*, *Finalizable*,
 *Traceable*, and *Serializable*. All traits try to avoid any namespace
 conflicts with application code by prefixing their exposed functionality
 with the name prefix `$`.
@@ -214,27 +214,27 @@ l2.unlatch()
 l3.unlatch()
 ```
 
-Trait: *Disposable*
+Trait: *Finalizable*
 -------------------
 
-The reusable generic trait *Disaposable* allows you to potentially react when a
-target class is disposed (garbage collected). You can observe the
-dispose event by overriding method `$dispose`. Apply a *Disposable*
-for allowing you to take action before garbage collection.
+The reusable generic trait *Finalizable* allows you to potentially react when a
+target class is finalized (disposed by garbage collection). You can observe the
+finalization event by overriding method `$finalize`. Apply a *Finalizable*
+for allowing you to take optional action before garbage collection.
 
 NOTICE: internally, the standard mechanism `FinalizationRegistry` is
-used and there is no guarantee that the `$dispose` method is called soon
+used and there is no guarantee that the `$finalize` method is called soon
 after garbage collection of the target class or even called at all. Hence,
-use the `$dispose` method just for fully optional memory deallocation
-tasks.
+use the `$finalize` method just for fully optional memory deallocation
+tasks only, please.
 
 ```ts
-import { derive }     from "@traits-ts/core"
-import { Disposable } from "@traits-ts/stdlib"
+import { derive }      from "@traits-ts/core"
+import { Finalizable } from "@traits-ts/stdlib"
 
-class Sample extends derive(Disposable) {
-    $dispose () {
-        console.log("disposed")
+class Sample extends derive(Finalizable) {
+    $finalize () {
+        console.log("finalized")
     }
 }
 

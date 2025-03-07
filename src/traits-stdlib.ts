@@ -6,7 +6,7 @@
 
 export * from "./traits-stdlib-bindable"
 export * from "./traits-stdlib-configurable"
-export * from "./traits-stdlib-disposable"
+export * from "./traits-stdlib-finalizable"
 export * from "./traits-stdlib-hookable"
 export * from "./traits-stdlib-identifiable"
 export * from "./traits-stdlib-serializable"

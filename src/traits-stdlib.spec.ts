@@ -19,7 +19,7 @@ import {
     Subscribable,
     Bindable, bindable,
     Hookable,
-    Disposable,
+    Finalizable,
     Traceable,
     Serializable, serializable
 } from "./traits-stdlib"
@@ -202,13 +202,13 @@ describe("@traits-ts/stdlib", () => {
             ])
     })
 
-    it("Disposable", async () => {
-        expect(Disposable).to.be.a("object")
-        class App extends derive(Disposable) {
+    it("Finalizable", async () => {
+        expect(Finalizable).to.be.a("object")
+        class App extends derive(Finalizable) {
             constructor () {
                 super()
             }
-            $dispose () {
+            $finalize () {
             }
         }
         const app = new App()

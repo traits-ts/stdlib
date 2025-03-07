@@ -9,24 +9,24 @@ import { trait } from "@traits-ts/core"
 /*  the central class instance registry  */
 const registry = new FinalizationRegistry((fn: () => void) => {
     if (typeof fn === "function") {
-        if (!(fn as any).disposed) {
-            (fn as any).disposed = true
+        if (!(fn as any).finalized) {
+            (fn as any).finalized = true
             fn()
         }
     }
 })
 
-/*  the API trait "Disposable<T>"  */
-export const Disposable = trait((base) => class Disposable extends base {
+/*  the API trait "Finalizable<T>"  */
+export const Finalizable = trait((base) => class Finalizable extends base {
     constructor (...args: any[]) {
         super(...args)
 
         /*  register class instance  */
-        const fn1 = this.$dispose
+        const fn1 = this.$finalize
         if (typeof fn1 !== "function")
-            throw new Error("trait Disposable requires a $dispose method to be defined")
+            throw new Error("trait Finalizable requires a $finalize method to be defined")
         const fn2 = function () { fn1() }
-        fn2.disposed = false
+        fn2.finalized = false
         registry.register(this, fn2, this)
     }
 })
