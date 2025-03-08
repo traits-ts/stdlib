@@ -61,7 +61,7 @@
         "@traits-ts/core":               "../core"
     },
     "peerDependencies": {
-        "@traits-ts/core":               ">=1.0.0"
+        "@traits-ts/core":               ">=1.0.3"
     },
     "scripts": {
         "start":                         "nps -c etc/nps.yaml"
