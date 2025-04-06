@@ -315,6 +315,20 @@ const sample1New = Sample.$unserialize(state)
 const sample2New = sample1New.sub
 ```
 
+History
+-------
+
+The **@traits-ts/stdlib** library was developed in February 2025 by Dr.
+Ralf S. Engelschall. It is heavily inspired by the necessary base class
+functionalities which Dr. Ralf S. Engelschall had to develop over the
+years in various projects.
+
+Support
+-------
+
+The work on this Open Source Software was financially supported by the
+german non-profit organisation *SEA Software Engineering Academy gGmbH*.
+
 License
 -------
 
