@@ -83,7 +83,7 @@ export const Hookable = <T extends HookMap>() => trait((base) => class Hookable 
                         /*  call registered hook  */
                         if (info.limit === 0) {
                             cleanups.push(() => {
-                                delete callbacks[group][i]
+                                callbacks[group].splice(i, 1)
                             })
                             continue
                         }
@@ -107,8 +107,8 @@ export const Hookable = <T extends HookMap>() => trait((base) => class Hookable 
                 }
             }
 
-            /*  execute cleanup  */
-            cleanups.forEach((cb) => { cb() })
+            /*  execute cleanup (in reverse order to avoid index shifting issues)  */
+            cleanups.reverse().forEach((cb) => { cb() })
         }
 
         /*  provide results  */
@@ -196,8 +196,7 @@ export const Hookable = <T extends HookMap>() => trait((base) => class Hookable 
                     const info = callbacks[group][i]
                     if (info.cb === cb) {
                         /*  delete registered callback  */
-                        /* eslint @typescript-eslint/no-dynamic-delete: off */
-                        delete callbacks[group][i]
+                        callbacks[group].splice(i, 1)
                         if (   callbacks["early"].length === 0
                             && callbacks["main"].length  === 0
                             && callbacks["late"].length  === 0)

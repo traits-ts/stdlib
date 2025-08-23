@@ -5,6 +5,7 @@ CHANGES
 1.0.9 (2023-08-23)
 ------------------
 
+- BUGFIX: in "Hookable" fix the cleanup handling
 - IMPROVEMENT: migrate from NPS to STX as the build tool
 - UPDATE: update package dependencies
 
