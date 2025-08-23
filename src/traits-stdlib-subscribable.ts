@@ -130,7 +130,7 @@ export const Subscribable = <T extends EventMap>() => trait((base) => class Subs
                 }
             }
         }
-        throw new Error("no such subcription found")
+        throw new Error("no such subscription found")
     }
 
     /*  emit an event  */
