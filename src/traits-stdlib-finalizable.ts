@@ -25,7 +25,7 @@ export const Finalizable = trait((base) => class Finalizable extends base {
         const fn1 = this.$finalize
         if (typeof fn1 !== "function")
             throw new Error("trait Finalizable requires a $finalize method to be defined")
-        const fn2 = function () { fn1() }
+        const fn2 = () => { fn1() }
         fn2.finalized = false
         registry.register(this, fn2, this)
     }

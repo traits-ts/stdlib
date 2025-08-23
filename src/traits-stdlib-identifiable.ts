@@ -27,22 +27,19 @@ const UI64_DIGIT_BITS = 8    /* number of bits in a digit */
 const UI64_DIGIT_BASE = 256  /* the numerical base of a digit */
 
 /*  convert between individual digits and the UI64 representation  */
-const ui64_d2i = function (d7: number, d6: number, d5: number, d4: number, d3: number, d2: number, d1: number, d0: number) {
-    return [ d0, d1, d2, d3, d4, d5, d6, d7 ]
-}
+const ui64_d2i = (d7: number, d6: number, d5: number, d4: number, d3: number, d2: number, d1: number, d0: number) =>
+    [ d0, d1, d2, d3, d4, d5, d6, d7 ]
 
 /*  the zero represented as an UI64  */
-const ui64_zero = function () {
-    return ui64_d2i(0, 0, 0, 0, 0, 0, 0, 0)
-}
+const ui64_zero = () =>
+    ui64_d2i(0, 0, 0, 0, 0, 0, 0, 0)
 
 /*  clone the UI64  */
-const ui64_clone = function (x: number[]) {
-    return x.slice(0)
-}
+const ui64_clone = (x: number[]) =>
+    x.slice(0)
 
 /*  convert between number and UI64 representation  */
-const ui64_n2i = function (n: number) {
+const ui64_n2i = (n: number) => {
     const ui64 = ui64_zero()
     for (let i = 0; i < UI64_DIGITS; i++) {
         ui64[i] = Math.floor(n % UI64_DIGIT_BASE)
@@ -52,7 +49,7 @@ const ui64_n2i = function (n: number) {
 }
 
 /*  convert between UI64 representation and number  */
-const ui64_i2n = function (x: number[]) {
+const ui64_i2n = (x: number[]) => {
     let n = 0
     for (let i = UI64_DIGITS - 1; i >= 0; i--) {
         n *= UI64_DIGIT_BASE
@@ -62,7 +59,7 @@ const ui64_i2n = function (x: number[]) {
 }
 
 /*  add UI64 (y) to UI64 (x) and return overflow/carry as number  */
-const ui64_add = function (x: number[], y: number[]) {
+const ui64_add = (x: number[], y: number[]) => {
     let carry = 0
     for (let i = 0; i < UI64_DIGITS; i++) {
         carry += x[i] + y[i]
@@ -73,7 +70,7 @@ const ui64_add = function (x: number[], y: number[]) {
 }
 
 /*  multiply number (n) to UI64 (x) and return overflow/carry as number  */
-const ui64_muln = function (x: number[], n: number) {
+const ui64_muln = (x: number[], n: number) => {
     let carry = 0
     for (let i = 0; i < UI64_DIGITS; i++) {
         carry += x[i] * n
@@ -84,8 +81,9 @@ const ui64_muln = function (x: number[], n: number) {
 }
 
 /*  multiply UI64 (y) to UI64 (x) and return overflow/carry as UI64  */
-const ui64_mul = function (x: number[], y: number[]) {
-    let i, j
+const ui64_mul = (x: number[], y: number[]) => {
+    let i: number
+    let j: number
 
     /*  clear temporary result buffer zx  */
     const zx = new Array(UI64_DIGITS + UI64_DIGITS)
@@ -93,7 +91,7 @@ const ui64_mul = function (x: number[], y: number[]) {
         zx[i] = 0
 
     /*  perform multiplication operation  */
-    let carry
+    let carry: number
     for (i = 0; i < UI64_DIGITS; i++) {
         /*  calculate partial product and immediately add to zx  */
         carry = 0
@@ -118,27 +116,27 @@ const ui64_mul = function (x: number[], y: number[]) {
 }
 
 /*  AND operation: UI64 (x) &= UI64 (y)  */
-const ui64_and = function (x: number[], y: number[]) {
+const ui64_and = (x: number[], y: number[]) => {
     for (let i = 0; i < UI64_DIGITS; i++)
         x[i] &= y[i]
     return x
 }
 
 /*  OR operation: UI64 (x) |= UI64 (y)  */
-const ui64_or = function (x: number[], y: number[]) {
+const ui64_or = (x: number[], y: number[]) => {
     for (let i = 0; i < UI64_DIGITS; i++)
         x[i] |= y[i]
     return x
 }
 
 /*  rotate right UI64 (x) by a "s" bits and return overflow/carry as number  */
-const ui64_rorn = function (x: number[], s: number) {
+const ui64_rorn = (x: number[], s: number) => {
     const ov = ui64_zero()
     if ((s % UI64_DIGIT_BITS) !== 0)
         throw new Error("ui64_rorn: only bit rotations supported with a multiple of digit bits")
     const k = Math.floor(s / UI64_DIGIT_BITS)
     for (let i = 0; i < k; i++) {
-        let j
+        let j: number
         for (j = UI64_DIGITS - 1 - 1; j >= 0; j--)
             ov[j + 1] = ov[j]
         ov[0] = x[0]
@@ -150,14 +148,14 @@ const ui64_rorn = function (x: number[], s: number) {
 }
 
 /*  rotate right UI64 (x) by a "s" bits and return overflow/carry as number  */
-const ui64_ror = function (x: number[], s: number) {
+const ui64_ror = (x: number[], s: number) => {
     /*  sanity check shifting  */
     if (s > (UI64_DIGITS * UI64_DIGIT_BITS))
         throw new Error("ui64_ror: invalid number of bits to shift")
 
     /*  prepare temporary buffer zx  */
     const zx = new Array(UI64_DIGITS + UI64_DIGITS)
-    let i
+    let i: number
     for (i = 0; i < UI64_DIGITS; i++) {
         zx[i + UI64_DIGITS] = x[i]
         zx[i] = 0
@@ -185,14 +183,14 @@ const ui64_ror = function (x: number[], s: number) {
 }
 
 /*  rotate left UI64 (x) by a "s" bits and return overflow/carry as UI64  */
-const ui64_rol = function (x: number[], s: number) {
+const ui64_rol = (x: number[], s: number) => {
     /*  sanity check shifting  */
     if (s > (UI64_DIGITS * UI64_DIGIT_BITS))
         throw new Error("ui64_rol: invalid number of bits to shift")
 
     /*  prepare temporary buffer zx  */
     const zx = new Array(UI64_DIGITS + UI64_DIGITS)
-    let i
+    let i: number
     for (i = 0; i < UI64_DIGITS; i++) {
         zx[i + UI64_DIGITS] = 0
         zx[i] = x[i]
@@ -218,7 +216,7 @@ const ui64_rol = function (x: number[], s: number) {
 }
 
 /*  XOR UI64 (y) onto UI64 (x) and return x  */
-const ui64_xor = function (x: number[], y: number[]) {
+const ui64_xor = (x: number[], y: number[]) => {
     for (let i = 0; i < UI64_DIGITS; i++)
         x[i] ^= y[i]
 }
@@ -239,7 +237,6 @@ class PCG {
         this.state = ui64_clone(this.inc)
         this.next()
         ui64_and(this.state, this.mask)
-        let arr
         let seed: number[]
         if (_seed !== undefined)
             /*  external seeding  */
@@ -247,14 +244,14 @@ class PCG {
         else if (typeof crypto === "object"
             && typeof crypto.getRandomValues === "function") {
             /*  internal strong seeding with WebCrypto API (in browsers)  */
-            arr = new Uint32Array(2)
+            const arr = new Uint32Array(2)
             crypto.getRandomValues(arr)
             seed = ui64_or(ui64_n2i(arr[0] >>> 0), ui64_ror(ui64_n2i(arr[1] >>> 0), 32))
         }
         else {
             /*  internal weak seeding with Math.random() and Date  */
             seed = ui64_n2i((Math.random() * 0xffffffff) >>> 0)
-            ui64_or(seed, ui64_ror(ui64_n2i((new Date()).getTime()), 32))
+            ui64_or(seed, ui64_ror(ui64_n2i(Date.now()), 32))
         }
         ui64_or(this.state, seed)
         this.next()
@@ -292,7 +289,7 @@ class PCG {
 const pcg = new PCG()
 
 /*  utility function: simple Pseudo Random Number Generator (PRNG)  */
-const prng = function (len: number, radix: number) {
+const prng = (len: number, radix: number) => {
     const bytes = []
     for (let i = 0; i < len; i++)
         bytes[i] = (pcg.next() % radix)
@@ -309,7 +306,7 @@ class UUID {
 
     /*  generate UUID version 1 (time and node based)  */
     constructor () {
-        let i
+        let i: number
 
         /*  determine current time and time sequence counter  */
         const date = new Date()
@@ -334,7 +331,7 @@ class UUID {
             ui64_add(t, ui64_n2i(time_seq))
 
         /*  store the 60 LSB of the time in the UUID  */
-        let ov
+        let ov: number
         ov = ui64_rorn(t, 8); this.uuid[3] = (ov & 0xFF)
         ov = ui64_rorn(t, 8); this.uuid[2] = (ov & 0xFF)
         ov = ui64_rorn(t, 8); this.uuid[1] = (ov & 0xFF)

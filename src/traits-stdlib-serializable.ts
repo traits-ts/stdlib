@@ -21,7 +21,7 @@ type Metainfo = { name: string, fields: Set<string> }
 
 /*  utility function: check for metainfo existance  */
 const hasMetainfo = (target: Cons) => {
-    return Object.prototype.hasOwnProperty.call(target, metainfoKey)
+    return Object.hasOwn(target, metainfoKey)
 }
 
 /*  utility function: retrieve metainfo (and ad-hoc create it)  */
@@ -55,7 +55,7 @@ export function serializable<This = unknown, T extends (Cons | Value) = Cons | V
     const name = String(context.name)
     if (context.kind === "class") {
         const ctor = value as Cons
-        context.addInitializer(function () {
+        context.addInitializer(() => {
             const metainfo = getMetainfo(ctor)
             metainfo.name = name
             classMap.set(name, ctor)
@@ -291,7 +291,7 @@ export const Serializable = trait((base) => class Serializable extends base {
 
     /*  unserialize a graph   */
     static $unserialize (json: string) {
-        let spec
+        let spec: any
         try {
             spec = JSON.parse(json)
         }

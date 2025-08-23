@@ -63,7 +63,7 @@ export const Hookable = <T extends HookMap>() => trait((base) => class Hookable 
     async $hook<
         N extends HookName<T>,
         D extends HookData<T, N>>
-        (name: N, data?: D): Promise<void | D> {
+        (name: N, data?: D): Promise<undefined | D> {
         const callbacks = this.#hooks.get(name)
         if (callbacks !== undefined) {
             /*  remember cleanups  */
