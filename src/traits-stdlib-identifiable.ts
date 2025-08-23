@@ -11,14 +11,10 @@ import { trait } from "@traits-ts/core"
 /* eslint camelcase: off */
 
 /*  array to hex-string conversion  */
-const a2hs = function (bytes: Uint8Array, begin: number, end: number, uppercase: boolean, str: string[], pos: number) {
-    const mkNum = function (num: number, uppercase: boolean) {
-        let base16 = num.toString(16)
-        if (base16.length < 2)
-            base16 = "0" + base16
-        if (uppercase)
-            base16 = base16.toUpperCase()
-        return base16
+const a2hs = (bytes: Uint8Array, begin: number, end: number, uppercase: boolean, str: string[], pos: number) => {
+    const mkNum = (num: number, uppercase: boolean) => {
+        const base16 = num.toString(16).padStart(2, "0")
+        return uppercase ? base16.toUpperCase() : base16
     }
     for (let i = begin; i <= end; i++)
         str[pos++] = mkNum(bytes[i], uppercase)
