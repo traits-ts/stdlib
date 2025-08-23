@@ -5,6 +5,7 @@ CHANGES
 1.0.9 (2023-08-23)
 ------------------
 
+- CLEANUP: simplify hex encoding in "Identifiable"
 - BUGFIX: fix typo in error message of "Subscribable"
 - BUGFIX: in "Hookable" fix the cleanup handling
 - IMPROVEMENT: migrate from NPS to STX as the build tool
