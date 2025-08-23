@@ -33,7 +33,7 @@ export const Traceable = <T extends TraceLogLevels = TraceLogLevelsDef>() =>
     $logLevel  = "INFO" as T
 
     /*  the log entry output function (dummy default)  */
-    $logOutput = (line: string) => {}
+    $logOutput = (_line: string) => {}
 
     /*  the generic log entry generation method  */
     $log (logLevel: T, msg: string, data?: Record<string, any>) {
