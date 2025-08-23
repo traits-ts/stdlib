@@ -314,11 +314,12 @@ class UUID {
         /*  determine current time and time sequence counter  */
         const date = new Date()
         const time_now = date.getTime()
-        if (time_now !== time_last)
+        if (time_now !== time_last) {
             time_seq = 0
+            time_last = time_now
+        }
         else
             time_seq++
-        time_last = time_now
 
         /*  convert time to 100*nsec  */
         const t = ui64_n2i(time_now)

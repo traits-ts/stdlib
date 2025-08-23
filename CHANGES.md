@@ -6,6 +6,7 @@ CHANGES
 ------------------
 
 - CLEANUP: simplify hex encoding in "Identifiable"
+- CLEANUP: simplify time handling in "Identifiable"
 - BUGFIX: fix typo in error message of "Subscribable"
 - BUGFIX: in "Hookable" fix the cleanup handling
 - IMPROVEMENT: migrate from NPS to STX as the build tool
