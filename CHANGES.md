@@ -6,6 +6,8 @@ CHANGES
 ------------------
 
 - CLEANUP: fix path for linting
+- CLEANUP: adjust source code style to make linters happy again
+- UPDATE: update package dependencies
 
 1.1.0 (2023-08-23)
 ------------------
