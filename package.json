@@ -6,7 +6,7 @@
     "homepage":                          "https://traits-ts.org",
     "repository":                        { "url": "git+https://github.com/traits-ts/stdlib.git", "type": "git" },
     "bugs":                              { "url": "http://github.com/traits-ts/stdlib/issues" },
-    "version":                           "1.1.0",
+    "version":                           "1.1.1",
     "license":                           "MIT",
     "author": {
         "name":                          "Dr. Ralf S. Engelschall",
