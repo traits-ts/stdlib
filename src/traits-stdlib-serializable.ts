@@ -20,9 +20,8 @@ const metainfoKey = Symbol("serializable")
 type Metainfo = { name: string, fields: Set<string> }
 
 /*  utility function: check for metainfo existance  */
-const hasMetainfo = (target: Cons) => {
-    return Object.hasOwn(target, metainfoKey)
-}
+const hasMetainfo = (target: Cons) =>
+    Object.hasOwn(target, metainfoKey)
 
 /*  utility function: retrieve metainfo (and ad-hoc create it)  */
 const getMetainfo = (target: Cons) => {
@@ -69,9 +68,7 @@ export function serializable<This = unknown, T extends (Cons | Value) = Cons | V
             const metainfo = getMetainfo(ctor)
             metainfo.fields.add(name)
         })
-        return (initialValue: any): any => {
-            return initialValue
-        }
+        return (initialValue: any): any => initialValue
     }
     else
         throw new Error("@serializable must be used on class or class field")
@@ -222,13 +219,11 @@ const unserialize = <T extends SerializeNode> (obj: T, derefs = new Map<number, 
         else if (obj.t === "RegExp")
             val = objDerefOrMake(obj, derefs, (v) => new RegExp(v.s, v.f))
         else if (obj.t === "Set")
-            val = objDerefOrMake(obj, derefs, (v) => {
-                return new Set(v.map((v: any) => unserialize(v, derefs) /* RECURSION */))
-            })
+            val = objDerefOrMake(obj, derefs, (v) =>
+                new Set(v.map((v: any) => unserialize(v, derefs) /* RECURSION */)))
         else if (obj.t === "Map")
-            val = objDerefOrMake(obj, derefs, (v) => {
-                return new Map(v.map((v: any[2]) => [ v[0], unserialize(v[1], derefs) /* RECURSION */ ]))
-            })
+            val = objDerefOrMake(obj, derefs, (v) =>
+                new Map(v.map((v: any[2]) => [ v[0], unserialize(v[1], derefs) /* RECURSION */ ])))
         else if ((m = obj.t.match(/^user:(.+)$/)) !== null) {
             const clz = m[1]
             val = objDerefOrMake(obj, derefs, (v: Array<[ string, SerializeNode ]>) => {
@@ -255,8 +250,7 @@ const unserialize = <T extends SerializeNode> (obj: T, derefs = new Map<number, 
         }
         else if (obj.t === "Array") {
             val = objDerefOrMake(obj, derefs, (v: SerializeNode[]) =>
-                v.map((el) => unserialize(el, derefs) /* RECURSION */)
-            )
+                v.map((el) => unserialize(el, derefs) /* RECURSION */))
         }
         else if (obj.t === "symbol")
             val = Symbol.for(obj.v)
@@ -269,7 +263,7 @@ const unserialize = <T extends SerializeNode> (obj: T, derefs = new Map<number, 
         else if (obj.t === "string")
             val = obj.v
         else if (obj.t === "NaN")
-            val = NaN
+            val = Number.NaN
         else if (obj.t === "null")
             val = null
         else if (obj.t === "undefined")

@@ -25,7 +25,7 @@ import {
 } from "./traits-stdlib"
 
 /*  configure testing libraries  */
-const expect = chai.expect
+const { expect } = chai
 chai.config.includeStack = true
 chai.use(sinonChai)
 
@@ -35,7 +35,7 @@ type DeepPartial<T> = T extends object ? { [ P in keyof T ]?: DeepPartial<T[P]> 
 /*  describe test suite  */
 describe("@traits-ts/stdlib", () => {
     /*  test aspect: trait Indentifiable  */
-    it("trait Identifiable", async () => {
+    it("trait Identifiable", () => {
         expect(Identifiable).to.be.a("object")
 
         class App extends derive(Identifiable) {}
@@ -48,7 +48,7 @@ describe("@traits-ts/stdlib", () => {
     })
 
     /*  test aspect: trait Configurable  */
-    it("trait Configurable", async () => {
+    it("trait Configurable", () => {
         expect(Configurable).to.be.a("function")
 
         type Config = {
@@ -84,7 +84,7 @@ describe("@traits-ts/stdlib", () => {
     })
 
     /*  test aspect: trait Bindable  */
-    it("trait Bindable", async () => {
+    it("trait Bindable", () => {
         expect(Bindable).to.be.a("function")
 
         interface State {
@@ -127,7 +127,7 @@ describe("@traits-ts/stdlib", () => {
     })
 
     /*  test aspect: trait Subscribable  */
-    it("trait Subscribable", async () => {
+    it("trait Subscribable", () => {
         expect(Subscribable).to.be.a("function")
 
         interface Events {
@@ -166,7 +166,7 @@ describe("@traits-ts/stdlib", () => {
             ])
     })
 
-    it("trait Hookable", async () => {
+    it("trait Hookable", () => {
         expect(Hookable).to.be.a("function")
 
         interface Hooks {
@@ -178,6 +178,7 @@ describe("@traits-ts/stdlib", () => {
         const app = new App()
 
         const spy = sinon.spy()
+        /* oxlint-disable require-await */
         app.$latch("foo", { limit: 2 }, async (data) => {
             spy(`foo:${data.foo2}`)
             return Hookable.CONTINUE
@@ -202,19 +203,15 @@ describe("@traits-ts/stdlib", () => {
             ])
     })
 
-    it("trait Finalizable", async () => {
+    it("trait Finalizable", () => {
         expect(Finalizable).to.be.a("object")
         class App extends derive(Finalizable) {
-            constructor () {
-                super()
-            }
-            $finalize () {
-            }
+            $finalize () {}
         }
         const app = new App()
     })
 
-    it("trait Traceable", async () => {
+    it("trait Traceable", () => {
         expect(Traceable).to.be.a("function")
         type  LogLevelsType   = "ERROR" | "WARNING" | "INFO"
         const LogLevelsDefine = [ "ERROR", "WARNING", "INFO" ] satisfies LogLevelsType[]
@@ -237,7 +234,7 @@ describe("@traits-ts/stdlib", () => {
             .to.match(/^log:....-..-.. ..:..:......: \[INFO\] test \(foo: "bar"\)$/)
     })
 
-    it("trait Serializable", async () => {
+    it("trait Serializable", () => {
         expect(Serializable).to.be.a("object")
         /* eslint no-use-before-define: off */
         @serializable

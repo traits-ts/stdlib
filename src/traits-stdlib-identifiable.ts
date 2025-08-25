@@ -11,11 +11,11 @@ import { trait } from "@traits-ts/core"
 /* eslint camelcase: off */
 
 /*  array to hex-string conversion  */
+const mkNum = (num: number, uppercase: boolean) => {
+    const base16 = num.toString(16).padStart(2, "0")
+    return uppercase ? base16.toUpperCase() : base16
+}
 const a2hs = (bytes: Uint8Array, begin: number, end: number, uppercase: boolean, str: string[], pos: number) => {
-    const mkNum = (num: number, uppercase: boolean) => {
-        const base16 = num.toString(16).padStart(2, "0")
-        return uppercase ? base16.toUpperCase() : base16
-    }
     for (let i = begin; i <= end; i++)
         str[pos++] = mkNum(bytes[i], uppercase)
     return str
@@ -86,7 +86,7 @@ const ui64_mul = (x: number[], y: number[]) => {
     let j: number
 
     /*  clear temporary result buffer zx  */
-    const zx = new Array(UI64_DIGITS + UI64_DIGITS)
+    const zx = Array.from<number>({ length: UI64_DIGITS + UI64_DIGITS })
     for (i = 0; i < (UI64_DIGITS + UI64_DIGITS); i++)
         zx[i] = 0
 
@@ -154,7 +154,7 @@ const ui64_ror = (x: number[], s: number) => {
         throw new Error("ui64_ror: invalid number of bits to shift")
 
     /*  prepare temporary buffer zx  */
-    const zx = new Array(UI64_DIGITS + UI64_DIGITS)
+    const zx = Array.from<number>({ length: UI64_DIGITS + UI64_DIGITS })
     let i: number
     for (i = 0; i < UI64_DIGITS; i++) {
         zx[i + UI64_DIGITS] = x[i]
@@ -189,7 +189,7 @@ const ui64_rol = (x: number[], s: number) => {
         throw new Error("ui64_rol: invalid number of bits to shift")
 
     /*  prepare temporary buffer zx  */
-    const zx = new Array(UI64_DIGITS + UI64_DIGITS)
+    const zx = Array.from<number>({ length: UI64_DIGITS + UI64_DIGITS })
     let i: number
     for (i = 0; i < UI64_DIGITS; i++) {
         zx[i + UI64_DIGITS] = 0
@@ -364,7 +364,7 @@ class UUID {
 
     /*  API method: format UUID into usual textual representation  */
     format () {
-        const arr = new Array(36)
+        const arr = Array.from<string>({ length: 36 })
         a2hs(this.uuid,  0,  3, false, arr,  0); arr[8]  = "-"
         a2hs(this.uuid,  4,  5, false, arr,  9); arr[13] = "-"
         a2hs(this.uuid,  6,  7, false, arr, 14); arr[18] = "-"

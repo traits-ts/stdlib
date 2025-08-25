@@ -11,8 +11,9 @@ type TraceLogLevels    = string
 type TraceLogLevelsDef = "FATAL" | "ERROR" | "WARNING" | "INFO" | "DEBUG"
 
 /*  utility function for formatting a date  */
+const pad = (value: number, len: number) =>
+    value.toString().padStart(len, "0")
 const formatDate = (date: Date) => {
-    const pad = (value: number, len: number) => value.toString().padStart(len, "0")
     const year    = date.getFullYear()
     const month   = pad(date.getMonth() + 1, 2)
     const day     = pad(date.getDate(), 2)

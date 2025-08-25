@@ -8,11 +8,9 @@ import { trait } from "@traits-ts/core"
 
 /*  the central class instance registry  */
 const registry = new FinalizationRegistry((fn: () => void) => {
-    if (typeof fn === "function") {
-        if (!(fn as any).finalized) {
-            (fn as any).finalized = true
-            fn()
-        }
+    if (typeof fn === "function" && !(fn as any).finalized) {
+        (fn as any).finalized = true
+        fn()
     }
 })
 
